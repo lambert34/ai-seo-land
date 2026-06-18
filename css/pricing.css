@@ -1,0 +1,1 @@
+.pricing__grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}.price-card{min-height:230px}.price-card h3{min-height:54px}.price-card strong{display:block;margin:20px 0 14px;color:var(--color-price);font-family:"JetBrains Mono",monospace;font-size:clamp(1.25rem,2vw,1.7rem);line-height:1.15}
