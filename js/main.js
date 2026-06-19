@@ -89,3 +89,38 @@ if (slider) {
   }, { passive: true });
   goTo(0);
 }
+
+function initCursorSmoke() {
+  const supportsFineHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!supportsFineHover || prefersReducedMotion) return;
+
+  let lastSmokeTime = 0;
+  const smokeThrottle = 55;
+
+  window.addEventListener('mousemove', (event) => {
+    const now = performance.now();
+    if (now - lastSmokeTime < smokeThrottle) return;
+    lastSmokeTime = now;
+
+    const smoke = document.createElement('span');
+    const size = Math.round(4 + Math.random() * 6);
+    const driftX = `${Math.round((Math.random() - 0.5) * 18)}px`;
+    const driftY = `${Math.round(-6 - Math.random() * 14)}px`;
+    const blur = `${Math.round(4 + Math.random() * 4)}px`;
+    const opacity = (0.12 + Math.random() * 0.08).toFixed(2);
+
+    smoke.className = 'cursor-smoke';
+    smoke.style.left = `${event.clientX}px`;
+    smoke.style.top = `${event.clientY}px`;
+    smoke.style.setProperty('--smoke-size', `${size}px`);
+    smoke.style.setProperty('--smoke-drift-x', driftX);
+    smoke.style.setProperty('--smoke-drift-y', driftY);
+    smoke.style.setProperty('--smoke-blur', blur);
+    smoke.style.setProperty('--smoke-opacity', opacity);
+    smoke.addEventListener('animationend', () => smoke.remove(), { once: true });
+    document.body.append(smoke);
+  }, { passive: true });
+}
+
+initCursorSmoke();
