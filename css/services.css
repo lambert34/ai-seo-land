@@ -1,1 +1,17 @@
-.services__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.service-card{min-height:280px;display:flex;flex-direction:column;gap:16px}.service-card p{flex:1}.service-card:nth-last-child(-n+3){grid-column:span 1}.service-card .button{align-self:flex-start}
+.services__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.service-card {
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.service-card h3 { color: var(--color-metal); }
+.service-card p { flex: 1; }
+.service-card:nth-last-child(-n+3) { grid-column: span 1; }
+.service-card .button { align-self: flex-start; }

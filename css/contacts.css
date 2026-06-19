@@ -6,8 +6,8 @@
   border: 1px solid var(--color-border-soft);
   border-radius: 32px;
   background:
-    linear-gradient(180deg, rgba(17, 19, 24, 0.96), rgba(11, 12, 15, 0.96)),
-    radial-gradient(circle at top right, var(--color-accent-soft), transparent 24rem);
+    radial-gradient(circle at top right, var(--color-accent-soft), transparent 24rem),
+    linear-gradient(180deg, rgba(17, 19, 24, 0.96), rgba(11, 12, 15, 0.96));
   box-shadow: var(--shadow);
 }
 

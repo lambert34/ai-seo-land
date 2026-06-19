@@ -1,1 +1,12 @@
-.benefits__grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}.benefit-card{min-height:330px}.benefit-card h3{margin-bottom:16px}
+.benefits__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.benefit-card { min-height: 330px; }
+
+.benefit-card h3 {
+  margin-bottom: 16px;
+  color: var(--color-metal);
+}
