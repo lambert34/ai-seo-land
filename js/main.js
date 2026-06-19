@@ -2,9 +2,23 @@ const METRIKA_COUNTER_ID = 109997768;
 const LEAD_GOAL_ID = 'lead_click';
 
 function sendMetrikaGoal(goalId) {
-  if (typeof ym === 'function') {
-    ym(METRIKA_COUNTER_ID, 'reachGoal', goalId);
+  if (typeof ym !== 'function') {
+    console.warn('Метрика недоступна:', goalId);
+    return;
   }
+
+  let callbackReceived = false;
+
+  ym(METRIKA_COUNTER_ID, 'reachGoal', goalId, {}, function () {
+    callbackReceived = true;
+    console.log('✅ Цель отправлена:', goalId);
+  });
+
+  setTimeout(function () {
+    if (!callbackReceived) {
+      console.warn('⚠️ Цель вызвана, но callback не получен:', goalId);
+    }
+  }, 5000);
 }
 
 function getLinkText(link) {
