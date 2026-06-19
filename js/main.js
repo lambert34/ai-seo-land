@@ -1,3 +1,64 @@
+const METRIKA_COUNTER_ID = 109997768;
+const LEAD_GOAL_ID = 'lead_click';
+
+function sendMetrikaGoal(goalId) {
+  if (typeof ym === 'function') {
+    ym(METRIKA_COUNTER_ID, 'reachGoal', goalId);
+  }
+}
+
+function getLinkText(link) {
+  return (link.textContent || '').trim().toLowerCase();
+}
+
+function isTelegramLink(link) {
+  const href = (link.getAttribute('href') || '').toLowerCase();
+  const text = getLinkText(link);
+  return href.includes('t.me') || href.includes('telegram') || text.includes('telegram');
+}
+
+function isWhatsAppLink(link) {
+  const href = (link.getAttribute('href') || '').toLowerCase();
+  const text = getLinkText(link);
+  return href.includes('wa.me') || href.includes('whatsapp') || text.includes('whatsapp');
+}
+
+function trackMetrikaClick(event) {
+  const target = event.target.closest('a, button');
+  if (!target) return;
+
+  const goals = new Set();
+  const href = (target.getAttribute('href') || '').toLowerCase();
+  const trackingType = target.dataset.metrikaClick;
+
+  if (href.startsWith('tel:')) goals.add('click_phone');
+  if (target.matches('a') && isTelegramLink(target)) goals.add('click_telegram');
+  if (target.matches('a') && isWhatsAppLink(target)) goals.add('click_whatsapp');
+  if (href.startsWith('mailto:')) goals.add('click_email');
+
+  if (trackingType === 'nav-pricing' || href === '#pricing') goals.add('click_nav_pricing');
+  if (trackingType === 'discuss-project') goals.add('click_discuss_project');
+  if (trackingType === 'view-services') goals.add('click_view_services');
+  if (trackingType === 'discuss-service' || target.closest('.services')) goals.add('click_discuss_service');
+  if (trackingType === 'discuss-price' || target.closest('.pricing')) goals.add('click_discuss_price');
+
+  if (
+    goals.has('click_phone')
+    || goals.has('click_telegram')
+    || goals.has('click_whatsapp')
+    || goals.has('click_email')
+    || goals.has('click_discuss_project')
+    || goals.has('click_discuss_service')
+    || goals.has('click_discuss_price')
+  ) {
+    goals.add(LEAD_GOAL_ID);
+  }
+
+  goals.forEach(sendMetrikaGoal);
+}
+
+document.addEventListener('click', trackMetrikaClick);
+
 const burger = document.querySelector('[data-burger]');
 const nav = document.querySelector('[data-nav]');
 const toTop = document.querySelector('[data-to-top]');
