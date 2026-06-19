@@ -1,1 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#59253A"/><path d="M17 45V15h8v23h22v7H17Z" fill="#F7F2F4"/><path d="M31 16h16v7H31v-7Zm0 12h12v7H31v-7Z" fill="#0677A1"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Lambert Digital">
+  <defs>
+    <linearGradient id="bg" x1="10" y1="4" x2="54" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#171A21"/>
+      <stop offset="0.52" stop-color="#050506"/>
+      <stop offset="1" stop-color="#242832"/>
+    </linearGradient>
+    <linearGradient id="metal" x1="14" y1="13" x2="48" y2="50" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F4F4F5"/>
+      <stop offset="0.5" stop-color="#D8DADF"/>
+      <stop offset="1" stop-color="#9CA3AF"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="41" y1="12" x2="28" y2="53" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A5B4FC"/>
+      <stop offset="1" stop-color="#7C8CFF"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
+  <path d="M47 10 29 54h-8l18-44h8Z" fill="url(#accent)"/>
+  <path d="M15 14h8v28h16v8H15V14Z" fill="url(#metal)"/>
+  <path d="M38 14h6c9 0 15 6 15 18s-6 18-15 18h-8l3-8h5c4 0 7-3 7-10s-3-10-7-10h-9l3-8Z" fill="url(#metal)"/>
+  <rect x="1" y="1" width="62" height="62" rx="15" fill="none" stroke="#F4F4F5" stroke-opacity="0.1" stroke-width="2"/>
+</svg>
