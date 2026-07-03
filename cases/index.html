@@ -17,6 +17,15 @@
     <meta name="twitter:description" content="Примеры работ Александра Ламберта: сайты, SEO, реклама, аналитика и автоматизация." />
     <meta name="twitter:image" content="https://lambert-digital.ru/assets/images/A.png">
     <link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml" />
+    <style>
+      :root{--color-bg:#050506;--color-bg-soft:#0B0C0F;--color-surface:#111318;--color-surface-hover:#171A21;--color-border:#242832;--color-text:#F4F4F5;--color-text-muted:#A1A1AA;--color-text-soft:#71717A;--color-accent:#7C8CFF;--color-accent-soft:rgba(124,140,255,.14);--container-width:1200px;--container-padding:24px;--header-height:76px;--radius:24px}
+      *{box-sizing:border-box}html{scroll-padding-top:calc(var(--header-height) + 20px)}body{margin:0;min-width:320px;overflow-x:hidden;background:radial-gradient(circle at 18% -10%,var(--color-accent-soft),transparent 30rem),radial-gradient(circle at 82% 8%,rgba(216,218,223,.08),transparent 28rem),linear-gradient(135deg,var(--color-bg) 0%,var(--color-bg-soft) 52%,var(--color-bg) 100%);color:var(--color-text);font:16px/1.6 "IBM Plex Sans","JetBrains Sans","Inter","Segoe UI",Arial,sans-serif}
+      a{color:inherit;text-decoration:none}.container{width:min(var(--container-width),calc(100% - var(--container-padding)*2));margin-inline:auto}.section{padding-block:96px}.eyebrow{margin:0 0 12px;color:var(--color-text-soft);font-family:"JetBrains Mono","IBM Plex Sans",monospace;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase}h1,h2,h3,p{overflow-wrap:anywhere}h1,h2,h3{margin:0;line-height:1.08;letter-spacing:-.04em}h1{max-width:780px;font-size:clamp(1.84rem,4.5vw,4.28rem)}p{margin:0;color:var(--color-text-muted)}
+      .site-header{position:fixed;top:0;left:0;right:0;z-index:100;min-height:var(--header-height);background:rgba(5,5,6,.78);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.08)}.header__inner{min-height:var(--header-height);display:flex;align-items:center;justify-content:space-between;gap:24px}.logo{font-weight:800;letter-spacing:-.04em}.site-nav{display:flex;align-items:center;gap:8px}.site-nav a{padding:10px 12px;color:var(--color-text-muted)}.burger{display:none}
+      .cases-hero{padding-top:calc(var(--header-height) + 72px)}.cases-hero .container{max-width:900px}.cases-hero h1{margin-bottom:24px}.cases-hero p:not(.eyebrow){max-width:780px;font-size:clamp(1.05rem,2vw,1.25rem);opacity:1;transform:none;animation:none;transition:none}
+      @media (max-width:900px){:root{--container-padding:20px}.section{padding-block:72px}.burger{display:block}.site-nav{position:fixed;inset:var(--header-height) 16px auto 16px;display:grid;gap:4px;padding:16px;border:1px solid var(--color-border);border-radius:22px;background:rgba(11,12,15,.98);opacity:0;pointer-events:none;transform:translateY(-12px)}.cases-hero,.cases-hero .container,.cases-hero h1,.cases-hero p,.cases-hero .eyebrow{opacity:1;transform:none;animation:none;transition:none}}
+      @media (max-width:560px){:root{--container-padding:16px;--header-height:68px}.section{padding-block:56px}h1{font-size:1.76rem}.cases-hero{padding-top:calc(var(--header-height) + 48px)}}
+    </style>
     <link rel="stylesheet" href="/css/main.css" />
     <link rel="stylesheet" href="/css/header.css" />
     <link rel="stylesheet" href="/css/hero.css" />
@@ -97,35 +106,35 @@
           <div class="cases-grid">
             <article class="case-card">
               <a class="case-card__preview" href="https://digitalrights.asia/" target="_blank" rel="noopener">
-                <iframe src="https://digitalrights.asia/" title="Мой первый сайт за реальные деньги" loading="lazy"></iframe>
+                <span class="case-card__preview-label">digitalrights.asia</span>
               </a>
               <a class="case-card__title" href="https://digitalrights.asia/" target="_blank" rel="noopener">Мой первый сайт за реальные деньги</a>
               <a class="button button--small case-card__button" href="https://digitalrights.asia/" target="_blank" rel="noopener" aria-label="Открыть сайт digitalrights.asia">Открыть сайт</a>
             </article>
             <article class="case-card">
               <a class="case-card__preview" href="https://womenfirst.ru/" target="_blank" rel="noopener">
-                <iframe src="https://womenfirst.ru/" title="Образовательный портал о женском здоровье" loading="lazy"></iframe>
+                <span class="case-card__preview-label">womenfirst.ru</span>
               </a>
               <a class="case-card__title" href="https://womenfirst.ru/" target="_blank" rel="noopener">Образовательный портал о женском здоровье</a>
               <a class="button button--small case-card__button" href="https://womenfirst.ru/" target="_blank" rel="noopener" aria-label="Открыть сайт womenfirst.ru">Открыть сайт</a>
             </article>
             <article class="case-card">
               <a class="case-card__preview" href="https://izishef.ru/" target="_blank" rel="noopener">
-                <iframe src="https://izishef.ru/" title="Доставка комплектов для приготовления ресторанной еды дома" loading="lazy"></iframe>
+                <span class="case-card__preview-label">izishef.ru</span>
               </a>
               <a class="case-card__title" href="https://izishef.ru/" target="_blank" rel="noopener">Доставка комплектов для приготовления ресторанной еды дома</a>
               <a class="button button--small case-card__button" href="https://izishef.ru/" target="_blank" rel="noopener" aria-label="Открыть сайт izishef.ru">Открыть сайт</a>
             </article>
             <article class="case-card">
               <a class="case-card__preview" href="https://potenzial54.ru/" target="_blank" rel="noopener">
-                <iframe src="https://potenzial54.ru/" title="Электромонтаж под ключ для дома и бизнеса" loading="lazy"></iframe>
+                <span class="case-card__preview-label">potenzial54.ru</span>
               </a>
               <a class="case-card__title" href="https://potenzial54.ru/" target="_blank" rel="noopener">Электромонтаж под ключ для дома и бизнеса</a>
               <a class="button button--small case-card__button" href="https://potenzial54.ru/" target="_blank" rel="noopener" aria-label="Открыть сайт potencial54.ru">Открыть сайт</a>
             </article>
             <article class="case-card">
               <a class="case-card__preview" href="https://lawstar33.ru/" target="_blank" rel="noopener">
-                <iframe src="https://lawstar33.ru/" title="Строгие сайты для юридических организаций" loading="lazy"></iframe>
+                <span class="case-card__preview-label">lawstar33.ru</span>
               </a>
               <a class="case-card__title" href="https://lawstar33.ru/" target="_blank" rel="noopener">Строгие сайты для юридических организаций</a>
               <a class="button button--small case-card__button" href="https://lawstar33.ru/" target="_blank" rel="noopener" aria-label="Открыть сайт lawstar33.ru">Открыть сайт</a>

@@ -44,9 +44,29 @@
 
 .case-card__preview {
   display: block;
+  position: relative;
   aspect-ratio: 1 / 1;
   overflow: hidden;
   background: radial-gradient(circle at 30% 20%, var(--color-accent-soft), transparent 16rem), rgba(255, 255, 255, .04);
+}
+
+.case-card__preview::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(244, 244, 245, .08), rgba(244, 244, 245, .02));
+}
+
+.case-card__preview-label {
+  position: absolute;
+  inset: auto 18px 18px;
+  z-index: 1;
+  color: var(--color-text);
+  font-family: "JetBrains Mono", "IBM Plex Sans", monospace;
+  font-size: .8rem;
+  letter-spacing: .04em;
 }
 
 .case-card__preview iframe,
