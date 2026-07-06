@@ -154,30 +154,54 @@
           </div>
           <div class="cases-grid seo-cases-grid">
             <article class="case-card seo-case-card">
-              <a class="seo-case-card__image-link" href="/assets/images/Seo/Seo-ABC.jpg" target="_blank" rel="noopener" aria-label="Открыть SEO-кейс ABC-Профмедицина полностью">
+              <button
+                class="seo-case-card__image-button"
+                type="button"
+                data-lightbox-image="/assets/images/Seo/Seo-ABC.jpg"
+                data-lightbox-title="ABC-Профмедицина"
+                aria-label="Открыть SEO-кейс ABC-Профмедицина"
+              >
                 <img class="seo-case-card__image" src="/assets/images/Seo/Seo-ABC.jpg" alt="SEO-кейс ABC-Профмедицина" loading="lazy">
-              </a>
+              </button>
               <h3 class="case-card__title seo-case-card__title">ABC-Профмедицина</h3>
             </article>
 
             <article class="case-card seo-case-card">
-              <a class="seo-case-card__image-link" href="/assets/images/Seo/Seo-BioTechno.jpg" target="_blank" rel="noopener" aria-label="Открыть SEO-кейс BioTechno полностью">
+              <button
+                class="seo-case-card__image-button"
+                type="button"
+                data-lightbox-image="/assets/images/Seo/Seo-BioTechno.jpg"
+                data-lightbox-title="BioTechno"
+                aria-label="Открыть SEO-кейс BioTechno"
+              >
                 <img class="seo-case-card__image" src="/assets/images/Seo/Seo-BioTechno.jpg" alt="SEO-кейс BioTechno" loading="lazy">
-              </a>
+              </button>
               <h3 class="case-card__title seo-case-card__title">BioTechno</h3>
             </article>
 
             <article class="case-card seo-case-card">
-              <a class="seo-case-card__image-link" href="/assets/images/Seo/Seo-LSQ.jpg" target="_blank" rel="noopener" aria-label="Открыть SEO-кейс LSQ полностью">
+              <button
+                class="seo-case-card__image-button"
+                type="button"
+                data-lightbox-image="/assets/images/Seo/Seo-LSQ.jpg"
+                data-lightbox-title="LSQ"
+                aria-label="Открыть SEO-кейс LSQ"
+              >
                 <img class="seo-case-card__image" src="/assets/images/Seo/Seo-LSQ.jpg" alt="SEO-кейс LSQ" loading="lazy">
-              </a>
+              </button>
               <h3 class="case-card__title seo-case-card__title">LSQ</h3>
             </article>
 
             <article class="case-card seo-case-card">
-              <a class="seo-case-card__image-link" href="/assets/images/Seo/Seo-TimeInvest.jpg" target="_blank" rel="noopener" aria-label="Открыть SEO-кейс TimeInvest полностью">
+              <button
+                class="seo-case-card__image-button"
+                type="button"
+                data-lightbox-image="/assets/images/Seo/Seo-TimeInvest.jpg"
+                data-lightbox-title="TimeInvest"
+                aria-label="Открыть SEO-кейс TimeInvest"
+              >
                 <img class="seo-case-card__image" src="/assets/images/Seo/Seo-TimeInvest.jpg" alt="SEO-кейс TimeInvest" loading="lazy">
-              </a>
+              </button>
               <h3 class="case-card__title seo-case-card__title">TimeInvest</h3>
             </article>
           </div>
@@ -203,6 +227,16 @@
     </main>
 
     <footer class="site-footer"><div class="container footer__inner"><div><a class="logo" href="/#hero">Lambert/Digital</a><p>Сайты · SEO · Реклама · Аналитика · AI-боты</p></div><div class="footer__contacts"><a href="tel:+79965013246">+7 996 501-32-46</a><a href="https://t.me/Lamfred" target="_blank" rel="noopener">Telegram</a><a href="https://wa.me/79965013246" target="_blank" rel="noopener">WhatsApp</a><a href="mailto:aleksandrlambert@gmail.com">Email</a></div><p class="copyright">© 2026 Lambert/Digital. Александр Ламберт.</p></div></footer>
+
+    <div class="image-lightbox" data-image-lightbox aria-hidden="true">
+      <div class="image-lightbox__backdrop" data-lightbox-close></div>
+
+      <div class="image-lightbox__dialog" role="dialog" aria-modal="true" aria-label="Просмотр изображения">
+        <button class="image-lightbox__close" type="button" data-lightbox-close aria-label="Закрыть">Закрыть</button>
+        <img class="image-lightbox__image" src="" alt="" data-lightbox-target-image>
+        <p class="image-lightbox__caption" data-lightbox-caption></p>
+      </div>
+    </div>
     <button class="to-top" type="button" data-to-top aria-label="Наверх">↑</button>
     <script src="/js/main.js"></script>
   </body>
