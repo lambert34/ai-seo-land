@@ -165,6 +165,55 @@ if (slider) {
   goTo(0);
 }
 
+
+function initImageLightbox() {
+  const lightbox = document.querySelector('[data-image-lightbox]');
+  if (!lightbox) return;
+
+  const image = lightbox.querySelector('[data-lightbox-target-image]');
+  const caption = lightbox.querySelector('[data-lightbox-caption]');
+  const triggers = document.querySelectorAll('[data-lightbox-image]');
+  const closeButtons = lightbox.querySelectorAll('[data-lightbox-close]');
+
+  if (!image || !caption || !triggers.length) return;
+
+  function openLightbox(src, title) {
+    image.src = src;
+    image.alt = title || 'Изображение кейса';
+    caption.textContent = title || '';
+    lightbox.classList.add('is-open');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('lightbox-open');
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('is-open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('lightbox-open');
+    image.src = '';
+    image.alt = '';
+    caption.textContent = '';
+  }
+
+  triggers.forEach((trigger) => {
+    trigger.addEventListener('click', () => {
+      openLightbox(trigger.dataset.lightboxImage, trigger.dataset.lightboxTitle);
+    });
+  });
+
+  closeButtons.forEach((button) => {
+    button.addEventListener('click', closeLightbox);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && lightbox.classList.contains('is-open')) {
+      closeLightbox();
+    }
+  });
+}
+
+initImageLightbox();
+
 function initCursorSmoke() {
   const supportsFineHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
