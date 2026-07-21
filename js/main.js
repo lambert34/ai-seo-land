@@ -44,6 +44,12 @@ function trackMetrikaClick(event) {
   const goals = new Set();
   const href = (target.getAttribute('href') || '').toLowerCase();
   const trackingType = target.dataset.metrikaClick;
+  const isBitrixPage = document.body.classList.contains('bitrix-support-page');
+
+  if (isBitrixPage && trackingType === 'bitrix-estimate') goals.add('bitrix_click_estimate');
+  if (isBitrixPage && trackingType === 'bitrix-telegram') goals.add('bitrix_click_telegram');
+  if (isBitrixPage && trackingType === 'bitrix-whatsapp') goals.add('bitrix_click_whatsapp');
+  if (isBitrixPage && trackingType === 'bitrix-phone') goals.add('bitrix_click_phone');
 
   if (href.startsWith('tel:')) goals.add('click_phone');
   if (target.matches('a') && isTelegramLink(target)) goals.add('click_telegram');
@@ -64,6 +70,7 @@ function trackMetrikaClick(event) {
     || goals.has('click_discuss_project')
     || goals.has('click_discuss_service')
     || goals.has('click_discuss_price')
+    || Array.from(goals).some((goal) => goal.startsWith('bitrix_click_'))
   ) {
     goals.add(LEAD_GOAL_ID);
   }
@@ -72,6 +79,23 @@ function trackMetrikaClick(event) {
 }
 
 document.addEventListener('click', trackMetrikaClick);
+
+document.querySelectorAll('[data-bitrix-form]').forEach((form) => {
+  form.addEventListener('submit', (event) => {
+    if (!form.checkValidity()) return;
+
+    // TODO: replace FORM_ENDPOINT in HTML with the real server-side form handler.
+    if (form.action.endsWith('/FORM_ENDPOINT') || form.getAttribute('action') === 'FORM_ENDPOINT') {
+      event.preventDefault();
+      const status = form.querySelector('[data-form-status]');
+      if (status) status.textContent = 'Форма пока не подключена. Отправьте задачу через Telegram, WhatsApp, телефон или email.';
+      return;
+    }
+
+    sendMetrikaGoal('bitrix_form_submit');
+    sendMetrikaGoal(LEAD_GOAL_ID);
+  });
+});
 
 const burger = document.querySelector('[data-burger]');
 const nav = document.querySelector('[data-nav]');
