@@ -50,6 +50,12 @@ function trackMetrikaClick(event) {
   if (isBitrixPage && trackingType === 'bitrix-telegram') goals.add('bitrix_click_telegram');
   if (isBitrixPage && trackingType === 'bitrix-whatsapp') goals.add('bitrix_click_whatsapp');
   if (isBitrixPage && trackingType === 'bitrix-phone') goals.add('bitrix_click_phone');
+  const isLandingPage = document.body.classList.contains('landing-page');
+  if (isLandingPage && trackingType === 'landing-discuss') goals.add('landing_click_discuss');
+  if (isLandingPage && trackingType === 'landing-examples') goals.add('landing_click_examples');
+  if (isLandingPage && trackingType === 'landing-telegram') goals.add('landing_click_telegram');
+  if (isLandingPage && trackingType === 'landing-whatsapp') goals.add('landing_click_whatsapp');
+  if (isLandingPage && trackingType === 'landing-phone') goals.add('landing_click_phone');
 
   if (href.startsWith('tel:')) goals.add('click_phone');
   if (target.matches('a') && isTelegramLink(target)) goals.add('click_telegram');
@@ -71,6 +77,10 @@ function trackMetrikaClick(event) {
     || goals.has('click_discuss_service')
     || goals.has('click_discuss_price')
     || Array.from(goals).some((goal) => goal.startsWith('bitrix_click_'))
+    || goals.has('landing_click_discuss')
+    || goals.has('landing_click_telegram')
+    || goals.has('landing_click_whatsapp')
+    || goals.has('landing_click_phone')
   ) {
     goals.add(LEAD_GOAL_ID);
   }
@@ -94,6 +104,36 @@ document.querySelectorAll('[data-bitrix-form]').forEach((form) => {
 
     sendMetrikaGoal('bitrix_form_submit');
     sendMetrikaGoal(LEAD_GOAL_ID);
+  });
+});
+
+document.querySelectorAll('[data-landing-form]').forEach((form) => {
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const status = form.querySelector('[data-form-status]');
+    // TODO: replace FORM_ENDPOINT in HTML with the real server-side form handler.
+    if (form.action.endsWith('/FORM_ENDPOINT') || form.getAttribute('action') === 'FORM_ENDPOINT') {
+      if (status) status.textContent = 'Форма пока не подключена. Отправьте задачу через Telegram, WhatsApp, телефон или email.';
+      return;
+    }
+
+    if (status) status.textContent = 'Отправляю…';
+    try {
+      const response = await fetch(form.action, { method: form.method, body: new FormData(form), headers: { Accept: 'application/json' } });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (status) status.textContent = 'Заявка отправлена. Я свяжусь с вами по указанному контакту.';
+      sendMetrikaGoal('landing_form_submit');
+      sendMetrikaGoal(LEAD_GOAL_ID);
+      form.reset();
+    } catch (error) {
+      if (status) status.textContent = 'Не удалось отправить заявку. Данные сохранены — попробуйте ещё раз или напишите мне напрямую.';
+      console.error('Ошибка отправки формы:', error);
+    }
   });
 });
 
