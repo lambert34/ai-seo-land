@@ -66,7 +66,15 @@ function trackMetrikaClick(event) {
   if (trackingType === 'discuss-project') goals.add('click_discuss_project');
   if (trackingType === 'view-services') goals.add('click_view_services');
   if (trackingType === 'discuss-service' || target.closest('.services')) goals.add('click_discuss_service');
-  if (trackingType === 'discuss-price' || target.closest('.pricing')) goals.add('click_discuss_price');
+
+  const isLandingServiceLink = trackingType === 'view-landing-service';
+  if (isLandingServiceLink) goals.add('click_view_landing_service');
+  if (
+    !isLandingServiceLink
+    && (trackingType === 'discuss-price' || target.closest('.pricing'))
+  ) {
+    goals.add('click_discuss_price');
+  }
 
   if (
     goals.has('click_phone')
