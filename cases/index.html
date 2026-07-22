@@ -74,7 +74,16 @@
       <div class="container header__inner">
         <a class="logo" href="/#hero" aria-label="Lambert Digital — на главную страницу">Lambert/Digital</a>
         <nav class="site-nav" data-nav aria-label="Основная навигация">
-          <a href="/#services">Услуги</a>
+          <div class="nav-dropdown">
+            <a class="nav-dropdown__trigger" href="/#services" aria-haspopup="true">
+              <span>Услуги</span>
+              <span class="nav-dropdown__chevron" aria-hidden="true">⌄</span>
+            </a>
+            <div class="nav-dropdown__menu">
+              <a href="/landing/">Разработка лендингов под ключ</a>
+              <a href="/bitrix-support/">Поддержка сайтов на 1С-Битрикс</a>
+            </div>
+          </div>
           <a href="#pricing" data-metrika-click="nav-pricing">Прайс</a>
           <a href="/cases/" aria-current="page">Кейсы</a>
           <a href="/#benefits">Преимущества</a>
