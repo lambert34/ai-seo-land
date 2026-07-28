@@ -45,11 +45,17 @@ function trackMetrikaClick(event) {
   const href = (target.getAttribute('href') || '').toLowerCase();
   const trackingType = target.dataset.metrikaClick;
   const isBitrixPage = document.body.classList.contains('bitrix-support-page');
+  const isSiteHelpPage = document.body.classList.contains('site-help-page');
 
   if (isBitrixPage && trackingType === 'bitrix-estimate') goals.add('bitrix_click_estimate');
   if (isBitrixPage && trackingType === 'bitrix-telegram') goals.add('bitrix_click_telegram');
   if (isBitrixPage && trackingType === 'bitrix-whatsapp') goals.add('bitrix_click_whatsapp');
   if (isBitrixPage && trackingType === 'bitrix-phone') goals.add('bitrix_click_phone');
+  if (isSiteHelpPage && trackingType === 'site-help-diagnose') goals.add('site_help_click_diagnose');
+  if (isSiteHelpPage && trackingType === 'site-help-telegram') goals.add('site_help_click_telegram');
+  if (isSiteHelpPage && trackingType === 'site-help-whatsapp') goals.add('site_help_click_whatsapp');
+  if (isSiteHelpPage && trackingType === 'site-help-phone') goals.add('site_help_click_phone');
+  if (isSiteHelpPage && trackingType === 'site-help-bitrix-support') goals.add('site_help_click_bitrix_support');
   const isLandingPage = document.body.classList.contains('landing-page');
   if (isLandingPage && trackingType === 'landing-discuss') goals.add('landing_click_discuss');
   if (isLandingPage && trackingType === 'landing-examples') goals.add('landing_click_examples');
@@ -68,9 +74,12 @@ function trackMetrikaClick(event) {
   if (trackingType === 'discuss-service' || target.closest('.services')) goals.add('click_discuss_service');
 
   const isLandingServiceLink = trackingType === 'view-landing-service';
+  const isSiteHelpServiceLink = trackingType === 'view-site-help-service';
   if (isLandingServiceLink) goals.add('click_view_landing_service');
+  if (isSiteHelpServiceLink) goals.add('click_view_site_help_service');
   if (
     !isLandingServiceLink
+    && !isSiteHelpServiceLink
     && (trackingType === 'discuss-price' || target.closest('.pricing'))
   ) {
     goals.add('click_discuss_price');
@@ -89,6 +98,10 @@ function trackMetrikaClick(event) {
     || goals.has('landing_click_telegram')
     || goals.has('landing_click_whatsapp')
     || goals.has('landing_click_phone')
+    || goals.has('site_help_click_diagnose')
+    || goals.has('site_help_click_telegram')
+    || goals.has('site_help_click_whatsapp')
+    || goals.has('site_help_click_phone')
   ) {
     goals.add(LEAD_GOAL_ID);
   }
@@ -140,6 +153,36 @@ document.querySelectorAll('[data-landing-form]').forEach((form) => {
       form.reset();
     } catch (error) {
       if (status) status.textContent = 'Не удалось отправить заявку. Данные сохранены — попробуйте ещё раз или напишите мне напрямую.';
+      console.error('Ошибка отправки формы:', error);
+    }
+  });
+});
+
+document.querySelectorAll('[data-site-help-form]').forEach((form) => {
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const status = form.querySelector('[data-form-status]');
+    // TODO: replace FORM_ENDPOINT in HTML with the real server-side form handler.
+    if (form.action.endsWith('/FORM_ENDPOINT') || form.getAttribute('action') === 'FORM_ENDPOINT') {
+      if (status) status.textContent = 'Форма пока не подключена. Отправьте описание через Telegram, WhatsApp, телефон или email.';
+      return;
+    }
+
+    if (status) status.textContent = 'Отправляю…';
+    try {
+      const response = await fetch(form.action, { method: form.method, body: new FormData(form), headers: { Accept: 'application/json' } });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      if (status) status.textContent = 'Описание отправлено. Я свяжусь с вами по указанному контакту.';
+      sendMetrikaGoal('site_help_form_submit');
+      sendMetrikaGoal(LEAD_GOAL_ID);
+      form.reset();
+    } catch (error) {
+      if (status) status.textContent = 'Не удалось отправить описание. Данные сохранены — попробуйте ещё раз или напишите мне напрямую.';
       console.error('Ошибка отправки формы:', error);
     }
   });
