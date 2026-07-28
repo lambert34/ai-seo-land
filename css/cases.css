@@ -133,9 +133,149 @@
   box-shadow: 0 18px 60px color-mix(in srgb, var(--color-bg) 72%, transparent);
 }
 
+.case-studies-list {
+  display: grid;
+  gap: 28px;
+  margin-top: 36px;
+}
+
+.case-studies-heading {
+  margin-top: 56px;
+  margin-bottom: 24px;
+}
+
+.case-studies-heading h3 {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.case-study-card {
+  padding: clamp(24px, 4vw, 40px);
+  overflow: visible;
+}
+
+.case-study-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.case-study-card__type {
+  margin-bottom: 10px;
+  color: var(--color-text-soft);
+  font-family: "JetBrains Mono", "IBM Plex Sans", monospace;
+  font-size: .78rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.case-study-card__header h3 {
+  font-size: clamp(1.75rem, 3.4vw, 3rem);
+}
+
+.case-study-card__domain {
+  display: inline-flex;
+  margin-top: 12px;
+  color: var(--color-metal, var(--color-text-muted));
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+  transition: color .2s ease, text-decoration-color .2s ease;
+}
+
+.case-study-card__domain:hover,
+.case-study-card__domain:focus-visible {
+  color: var(--color-text);
+  text-decoration-color: currentColor;
+}
+
+.case-study-card__content {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.case-study-card__section {
+  padding: 22px;
+  border: 1px solid var(--color-border-soft);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .025);
+}
+
+.case-study-card__section--wide {
+  grid-column: 1 / -1;
+}
+
+.case-study-card__section h4 {
+  margin: 0 0 12px;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.case-study-card__section p,
+.case-study-card__section li {
+  color: var(--color-text-muted);
+}
+
+.case-study-card__section ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.case-study-card__section li + li {
+  margin-top: 7px;
+}
+
+.case-study-card__technologies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  list-style: none;
+}
+
+.case-study-card__technologies li {
+  padding: 7px 11px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font-size: .86rem;
+}
+
+.case-study-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
 @media (max-width: 1024px) {
   .cases-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .case-study-card__content {
+    grid-template-columns: 1fr;
+  }
+
+  .case-study-card__section--wide {
+    grid-column: auto;
+  }
+
+  .case-study-card__header {
+    display: block;
+  }
+
+  .case-study-card__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .case-study-card__actions .button {
+    width: 100%;
   }
 }
 
@@ -146,6 +286,19 @@
 
   .cases-hero {
     padding-top: calc(var(--header-height) + 48px);
+  }
+
+  .case-study-card {
+    padding: 20px;
+  }
+
+  .case-study-card__section {
+    padding: 18px;
+  }
+
+  .case-study-card__technologies li {
+    max-width: 100%;
+    overflow-wrap: anywhere;
   }
 }
 
