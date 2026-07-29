@@ -521,8 +521,14 @@
 <p>Укажите сайт и кратко опишите задачу. Я изучу запрос и сообщу, какие данные нужны для оценки.</p>
 </div>
 <div class="contact-grid">
-<form class="bitrix-lead-form" data-bitrix-form action="FORM_ENDPOINT" method="post">
-<!-- TODO: заменить FORM_ENDPOINT на реальный серверный обработчик формы. -->
+<form class="bitrix-lead-form" data-web3forms data-bitrix-form data-form-goal="bitrix_form_submit" data-success-message="Заявка отправлена. Я свяжусь с вами по указанному контакту." action="https://api.web3forms.com/submit" method="POST">
+<input type="hidden" name="access_key" value="0530074b-3fdb-4d3d-895f-35ad4d048f17">
+<input type="hidden" name="from_name" value="Lambert/Digital">
+<input type="hidden" name="subject" value="Заявка: поддержка сайта на 1С-Битрикс — Lambert/Digital">
+<input type="hidden" name="service" value="Поддержка сайта на 1С-Битрикс">
+<div class="form-honeypot" aria-hidden="true">
+<input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off">
+</div>
 <label for="lead-name">Имя</label>
 <input id="lead-name" name="name" autocomplete="name" required>
 <label for="lead-site">Сайт</label>

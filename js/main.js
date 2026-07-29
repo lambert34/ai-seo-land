@@ -111,82 +111,109 @@ function trackMetrikaClick(event) {
 
 document.addEventListener('click', trackMetrikaClick);
 
-document.querySelectorAll('[data-bitrix-form]').forEach((form) => {
-  form.addEventListener('submit', (event) => {
-    if (!form.checkValidity()) return;
+function initWeb3Forms() {
+  const forms = document.querySelectorAll('form[data-web3forms]');
 
-    // TODO: replace FORM_ENDPOINT in HTML with the real server-side form handler.
-    if (form.action.endsWith('/FORM_ENDPOINT') || form.getAttribute('action') === 'FORM_ENDPOINT') {
+  forms.forEach((form) => {
+    if (form.dataset.web3formsInitialized === 'true') return;
+
+    form.dataset.web3formsInitialized = 'true';
+
+    form.addEventListener('submit', async (event) => {
       event.preventDefault();
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      if (form.dataset.submitting === 'true') return;
+
       const status = form.querySelector('[data-form-status]');
-      if (status) status.textContent = 'Форма пока не подключена. Отправьте задачу через Telegram, WhatsApp, телефон или email.';
-      return;
-    }
+      const submitButton = form.querySelector('[type="submit"]');
+      const originalButtonText = submitButton ? submitButton.textContent : '';
 
-    sendMetrikaGoal('bitrix_form_submit');
-    sendMetrikaGoal(LEAD_GOAL_ID);
+      form.dataset.submitting = 'true';
+      form.setAttribute('aria-busy', 'true');
+
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Отправляю…';
+      }
+
+      if (status) {
+        status.textContent = 'Отправляю заявку…';
+        status.classList.remove('is-success', 'is-error');
+        status.classList.add('is-pending');
+      }
+
+      try {
+        const formData = new FormData(form);
+
+        formData.set('page_url', window.location.href);
+        formData.set('page_title', document.title);
+        formData.set('submitted_at', new Date().toLocaleString('ru-RU'));
+
+        const response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            Accept: 'application/json'
+          }
+        });
+
+        let result = null;
+
+        try {
+          result = await response.json();
+        } catch (parseError) {
+          console.error('Не удалось прочитать ответ Web3Forms:', parseError);
+        }
+
+        if (!response.ok || result?.success !== true) {
+          throw new Error(
+            result?.message
+            || result?.body?.message
+            || `HTTP ${response.status}`
+          );
+        }
+
+        if (status) {
+          status.textContent = form.dataset.successMessage || 'Заявка успешно отправлена.';
+          status.classList.remove('is-pending', 'is-error');
+          status.classList.add('is-success');
+        }
+
+        const formGoal = form.dataset.formGoal;
+
+        if (formGoal) {
+          sendMetrikaGoal(formGoal);
+        }
+
+        sendMetrikaGoal(LEAD_GOAL_ID);
+        form.reset();
+      } catch (error) {
+        console.error('Ошибка отправки формы Web3Forms:', error);
+
+        if (status) {
+          status.textContent = 'Не удалось отправить заявку. Введённые данные сохранены — попробуйте ещё раз или напишите мне в Telegram.';
+          status.classList.remove('is-pending', 'is-success');
+          status.classList.add('is-error');
+        }
+      } finally {
+        form.dataset.submitting = 'false';
+        form.removeAttribute('aria-busy');
+
+        if (submitButton) {
+          submitButton.disabled = false;
+          submitButton.textContent = originalButtonText;
+        }
+      }
+    });
   });
-});
+}
 
-document.querySelectorAll('[data-landing-form]').forEach((form) => {
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-
-    const status = form.querySelector('[data-form-status]');
-    // TODO: replace FORM_ENDPOINT in HTML with the real server-side form handler.
-    if (form.action.endsWith('/FORM_ENDPOINT') || form.getAttribute('action') === 'FORM_ENDPOINT') {
-      if (status) status.textContent = 'Форма пока не подключена. Отправьте задачу через Telegram, WhatsApp, телефон или email.';
-      return;
-    }
-
-    if (status) status.textContent = 'Отправляю…';
-    try {
-      const response = await fetch(form.action, { method: form.method, body: new FormData(form), headers: { Accept: 'application/json' } });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      if (status) status.textContent = 'Заявка отправлена. Я свяжусь с вами по указанному контакту.';
-      sendMetrikaGoal('landing_form_submit');
-      sendMetrikaGoal(LEAD_GOAL_ID);
-      form.reset();
-    } catch (error) {
-      if (status) status.textContent = 'Не удалось отправить заявку. Данные сохранены — попробуйте ещё раз или напишите мне напрямую.';
-      console.error('Ошибка отправки формы:', error);
-    }
-  });
-});
-
-document.querySelectorAll('[data-site-help-form]').forEach((form) => {
-  form.addEventListener('submit', async (event) => {
-    event.preventDefault();
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-
-    const status = form.querySelector('[data-form-status]');
-    // TODO: replace FORM_ENDPOINT in HTML with the real server-side form handler.
-    if (form.action.endsWith('/FORM_ENDPOINT') || form.getAttribute('action') === 'FORM_ENDPOINT') {
-      if (status) status.textContent = 'Форма пока не подключена. Отправьте описание через Telegram, WhatsApp, телефон или email.';
-      return;
-    }
-
-    if (status) status.textContent = 'Отправляю…';
-    try {
-      const response = await fetch(form.action, { method: form.method, body: new FormData(form), headers: { Accept: 'application/json' } });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      if (status) status.textContent = 'Описание отправлено. Я свяжусь с вами по указанному контакту.';
-      sendMetrikaGoal('site_help_form_submit');
-      sendMetrikaGoal(LEAD_GOAL_ID);
-      form.reset();
-    } catch (error) {
-      if (status) status.textContent = 'Не удалось отправить описание. Данные сохранены — попробуйте ещё раз или напишите мне напрямую.';
-      console.error('Ошибка отправки формы:', error);
-    }
-  });
-});
+initWeb3Forms();
 
 const burger = document.querySelector('[data-burger]');
 const nav = document.querySelector('[data-nav]');
