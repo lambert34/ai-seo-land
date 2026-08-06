@@ -1,11 +1,11 @@
 (function initCursorSmoke() {
-  const pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+  const desktopQuery = window.matchMedia('(min-width: 901px)');
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   const maxParticles = 72;
   let destroyEffect = null;
 
-  function isEligible() {
-    return pointerQuery.matches && !motionQuery.matches && navigator.maxTouchPoints === 0;
+  function canStartEffect() {
+    return desktopQuery.matches && !motionQuery.matches;
   }
 
   function createEffect() {
@@ -166,15 +166,22 @@
     };
   }
 
-  function syncEffect() {
-    if (destroyEffect) {
-      destroyEffect();
-      destroyEffect = null;
-    }
-    if (isEligible()) destroyEffect = createEffect();
+  function handleMouseDetection(event) {
+    if (event.pointerType !== 'mouse') return;
+    if (!canStartEffect()) return;
+    if (destroyEffect) return;
+
+    destroyEffect = createEffect();
   }
 
-  pointerQuery.addEventListener('change', syncEffect);
-  motionQuery.addEventListener('change', syncEffect);
-  syncEffect();
+  function disableEffectWhenNeeded() {
+    if (canStartEffect() || !destroyEffect) return;
+
+    destroyEffect();
+    destroyEffect = null;
+  }
+
+  window.addEventListener('pointermove', handleMouseDetection, { passive: true });
+  desktopQuery.addEventListener('change', disableEffectWhenNeeded);
+  motionQuery.addEventListener('change', disableEffectWhenNeeded);
 }());
