@@ -3,10 +3,6 @@
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   let destroyEffect = null;
 
-  function canStartEffect() {
-    return desktopQuery.matches;
-  }
-
   function createEffect() {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d', { alpha: true });
@@ -14,7 +10,6 @@
 
     canvas.className = 'cursor-smoke-canvas';
     canvas.setAttribute('aria-hidden', 'true');
-    canvas.dataset.smokeActive = 'true';
     Object.assign(canvas.style, {
       position: 'fixed',
       inset: '0',
@@ -25,8 +20,8 @@
     });
     document.body.append(canvas);
 
-    const particles = [];
-    const cursor = { x: 0, y: 0, smoothX: 0, smoothY: 0, previousX: 0, previousY: 0 };
+    const points = [];
+    const cursor = { x: 0, y: 0, smoothX: 0, smoothY: 0, lastX: 0, lastY: 0 };
     let cursorReady = false;
     let pointerInside = false;
     let movementPending = false;
@@ -34,102 +29,125 @@
     let previousFrame = performance.now();
     let dpr = 1;
 
+    function settings() {
+      return motionQuery.matches
+        ? { lifetime: 850, maxPoints: 58, spacing: 5, wobble: 0.7, layers: 2 }
+        : { lifetime: 1550, maxPoints: 115, spacing: 3.5, wobble: 1.5, layers: 3 };
+    }
+
     function resizeCanvas() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       canvas.width = Math.round(window.innerWidth * dpr);
       canvas.height = Math.round(window.innerHeight * dpr);
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      context.lineCap = 'round';
+      context.lineJoin = 'round';
     }
 
-    function addParticle(x, y, speed) {
-      const reducedMotion = motionQuery.matches;
-      const maxParticles = reducedMotion ? 35 : 90;
-      if (particles.length >= maxParticles) particles.shift();
-      const lifetime = reducedMotion
-        ? 700 + Math.random() * 300
-        : 1100 + Math.random() * 700;
-      particles.push({
-        x: x + (Math.random() - 0.5) * 2.5,
-        y: y + (Math.random() - 0.5) * 2.5,
-        velocityX: (Math.random() - 0.5) * 4 - speed * 0.012,
-        velocityY: -7 - Math.random() * 8,
+    function addPoint(x, y) {
+      const options = settings();
+      points.push({
+        x,
+        y,
         age: 0,
-        lifetime,
-        radius: 4 + Math.random() * 3.5,
-        growth: 10 + Math.random() * 8,
-        alpha: (0.14 + Math.random() * 0.09) * (reducedMotion ? 0.75 : 1),
-        wobble: Math.random() * Math.PI * 2,
-        wobbleSpeed: reducedMotion ? 0 : 1.2 + Math.random() * 1.4,
-        wobbleAmount: reducedMotion ? 0 : 4
+        lifetime: options.lifetime * (0.9 + Math.random() * 0.2),
+        phase: Math.random() * Math.PI * 2,
+        drift: (Math.random() - 0.5) * 0.7
       });
+      if (points.length > options.maxPoints) points.splice(0, points.length - options.maxPoints);
     }
 
-    function drawParticle(particle) {
-      const progress = particle.age / particle.lifetime;
-      const radius = particle.radius + particle.growth * progress;
-      const fadeIn = Math.min(progress / 0.12, 1);
-      const opacity = particle.alpha * fadeIn * Math.pow(1 - progress, 1.7);
-      const gradient = context.createRadialGradient(
-        particle.x, particle.y, radius * 0.08,
-        particle.x, particle.y, radius
-      );
-      gradient.addColorStop(0, `rgba(230, 232, 235, ${opacity})`);
-      gradient.addColorStop(0.42, `rgba(205, 208, 213, ${opacity * 0.62})`);
-      gradient.addColorStop(1, 'rgba(190, 194, 200, 0)');
-      context.fillStyle = gradient;
+    function extendTrail(x, y) {
+      const options = settings();
+      const dx = x - cursor.lastX;
+      const dy = y - cursor.lastY;
+      const distance = Math.hypot(dx, dy);
+      if (distance < 0.5) return;
+
+      const steps = Math.min(24, Math.max(1, Math.ceil(distance / options.spacing)));
+      for (let step = 1; step <= steps; step += 1) {
+        const ratio = step / steps;
+        addPoint(cursor.lastX + dx * ratio, cursor.lastY + dy * ratio);
+      }
+      cursor.lastX = x;
+      cursor.lastY = y;
+    }
+
+    function pointPosition(point, now) {
+      const progress = point.age / point.lifetime;
+      const options = settings();
+      const lift = 13 * progress + 12 * progress * progress;
+      const curl = Math.sin(now * 0.00115 + point.phase + progress * 2.4)
+        * options.wobble * (0.25 + progress);
+      return { x: point.x + point.drift * progress * 5 + curl, y: point.y - lift };
+    }
+
+    function drawSegment(start, control, end, progress, layer) {
+      const fade = Math.pow(1 - progress, 1.45);
+      const widths = [1.05, 2.25, 4.5];
+      const alphas = [0.2, 0.1, 0.045];
+      const blurs = [1.5, 3.5, 7];
+      const expansion = 1 + progress * 1.45;
+
+      context.lineWidth = widths[layer] * expansion;
+      context.strokeStyle = `rgba(220, 225, 235, ${alphas[layer] * fade})`;
+      context.shadowColor = `rgba(205, 214, 226, ${alphas[layer] * fade * 0.7})`;
+      context.shadowBlur = blurs[layer];
       context.beginPath();
-      context.arc(particle.x, particle.y, radius, 0, Math.PI * 2);
-      context.fill();
+      context.moveTo(start.x, start.y);
+      context.quadraticCurveTo(control.x, control.y, end.x, end.y);
+      context.stroke();
+    }
+
+    function drawTrail(now) {
+      if (points.length < 2) return;
+      const positions = points.map((point) => pointPosition(point, now));
+      const layerCount = settings().layers;
+
+      context.save();
+      context.globalCompositeOperation = 'source-over';
+      for (let layer = layerCount - 1; layer >= 0; layer -= 1) {
+        for (let index = 1; index < positions.length; index += 1) {
+          const previous = positions[index - 1];
+          const current = positions[index];
+          const next = positions[Math.min(index + 1, positions.length - 1)];
+          const start = {
+            x: (previous.x + current.x) * 0.5,
+            y: (previous.y + current.y) * 0.5
+          };
+          const end = {
+            x: (current.x + next.x) * 0.5,
+            y: (current.y + next.y) * 0.5
+          };
+          drawSegment(start, current, end, points[index].age / points[index].lifetime, layer);
+        }
+      }
+      context.restore();
     }
 
     function animate(now) {
       frameId = 0;
       if (dpr !== Math.min(window.devicePixelRatio || 1, 2)) resizeCanvas();
       const elapsed = Math.min(now - previousFrame, 34);
-      const seconds = elapsed / 1000;
       previousFrame = now;
       context.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
       if (movementPending && pointerInside) {
-        cursor.smoothX += (cursor.x - cursor.smoothX) * 0.24;
-        cursor.smoothY += (cursor.y - cursor.smoothY) * 0.24;
-        const distance = Math.hypot(cursor.smoothX - cursor.previousX, cursor.smoothY - cursor.previousY);
-        if (distance > 1.5) {
-          const reducedMotion = motionQuery.matches;
-          const steps = Math.min(
-            reducedMotion ? 2 : 5,
-            Math.max(1, Math.floor(distance / 8))
-          );
-          for (let step = 1; step <= steps; step += 1) {
-            const ratio = step / steps;
-            addParticle(
-              cursor.previousX + (cursor.smoothX - cursor.previousX) * ratio,
-              cursor.previousY + (cursor.smoothY - cursor.previousY) * ratio,
-              distance
-            );
-          }
-          cursor.previousX = cursor.smoothX;
-          cursor.previousY = cursor.smoothY;
-        }
-        if (Math.hypot(cursor.x - cursor.smoothX, cursor.y - cursor.smoothY) < 0.8) {
+        cursor.smoothX += (cursor.x - cursor.smoothX) * 0.32;
+        cursor.smoothY += (cursor.y - cursor.smoothY) * 0.32;
+        extendTrail(cursor.smoothX, cursor.smoothY);
+        if (Math.hypot(cursor.x - cursor.smoothX, cursor.y - cursor.smoothY) < 0.35) {
           movementPending = false;
         }
       }
 
-      for (let index = particles.length - 1; index >= 0; index -= 1) {
-        const particle = particles[index];
-        particle.age += elapsed;
-        if (particle.age >= particle.lifetime) {
-          particles.splice(index, 1);
-          continue;
-        }
-        particle.wobble += particle.wobbleSpeed * seconds;
-        particle.x += (particle.velocityX + Math.sin(particle.wobble) * particle.wobbleAmount) * seconds;
-        particle.y += particle.velocityY * seconds;
-        drawParticle(particle);
+      for (let index = points.length - 1; index >= 0; index -= 1) {
+        points[index].age += elapsed;
+        if (points[index].age >= points[index].lifetime) points.splice(index, 1);
       }
+      drawTrail(now);
 
-      if (particles.length || movementPending) frameId = requestAnimationFrame(animate);
+      if (points.length || movementPending) frameId = requestAnimationFrame(animate);
     }
 
     function requestFrame() {
@@ -144,8 +162,10 @@
       pointerInside = true;
       movementPending = true;
       if (!cursorReady) {
-        cursor.smoothX = cursor.previousX = cursor.x;
-        cursor.smoothY = cursor.previousY = cursor.y;
+        cursor.smoothX = cursor.lastX = cursor.x;
+        cursor.smoothY = cursor.lastY = cursor.y;
+        addPoint(cursor.x, cursor.y + 0.5);
+        addPoint(cursor.x, cursor.y);
         cursorReady = true;
       }
       requestFrame();
@@ -161,7 +181,10 @@
       if (document.hidden) {
         if (frameId) cancelAnimationFrame(frameId);
         frameId = 0;
-        particles.length = 0;
+        points.length = 0;
+        cursorReady = false;
+        pointerInside = false;
+        movementPending = false;
         context.clearRect(0, 0, window.innerWidth, window.innerHeight);
       }
     }
@@ -186,19 +209,13 @@
   }
 
   function handleMouseDetection(event) {
-    if (!canStartEffect()) return;
-    if (destroyEffect) return;
-
+    if (!desktopQuery.matches || destroyEffect) return;
     destroyEffect = createEffect();
-
-    if (typeof destroyEffect.handleMouseMove === 'function') {
-      destroyEffect.handleMouseMove(event);
-    }
+    if (typeof destroyEffect.handleMouseMove === 'function') destroyEffect.handleMouseMove(event);
   }
 
   function disableEffectWhenNeeded() {
-    if (canStartEffect() || !destroyEffect) return;
-
+    if (desktopQuery.matches || !destroyEffect) return;
     destroyEffect();
     destroyEffect = null;
   }
