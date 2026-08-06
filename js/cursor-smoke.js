@@ -1,11 +1,10 @@
 (function initCursorSmoke() {
   const desktopQuery = window.matchMedia('(min-width: 901px)');
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const maxParticles = 72;
   let destroyEffect = null;
 
   function canStartEffect() {
-    return desktopQuery.matches && !motionQuery.matches;
+    return desktopQuery.matches;
   }
 
   function createEffect() {
@@ -15,6 +14,15 @@
 
     canvas.className = 'cursor-smoke-canvas';
     canvas.setAttribute('aria-hidden', 'true');
+    canvas.dataset.smokeActive = 'true';
+    Object.assign(canvas.style, {
+      position: 'fixed',
+      inset: '0',
+      zIndex: '90',
+      width: '100%',
+      height: '100%',
+      pointerEvents: 'none'
+    });
     document.body.append(canvas);
 
     const particles = [];
@@ -34,8 +42,12 @@
     }
 
     function addParticle(x, y, speed) {
+      const reducedMotion = motionQuery.matches;
+      const maxParticles = reducedMotion ? 35 : 90;
       if (particles.length >= maxParticles) particles.shift();
-      const lifetime = 850 + Math.random() * 500;
+      const lifetime = reducedMotion
+        ? 700 + Math.random() * 300
+        : 1100 + Math.random() * 700;
       particles.push({
         x: x + (Math.random() - 0.5) * 2.5,
         y: y + (Math.random() - 0.5) * 2.5,
@@ -43,11 +55,12 @@
         velocityY: -7 - Math.random() * 8,
         age: 0,
         lifetime,
-        radius: 2.2 + Math.random() * 2.3,
-        growth: 5 + Math.random() * 5,
-        alpha: 0.045 + Math.random() * 0.035,
+        radius: 4 + Math.random() * 3.5,
+        growth: 10 + Math.random() * 8,
+        alpha: (0.14 + Math.random() * 0.09) * (reducedMotion ? 0.75 : 1),
         wobble: Math.random() * Math.PI * 2,
-        wobbleSpeed: 1.2 + Math.random() * 1.4
+        wobbleSpeed: reducedMotion ? 0 : 1.2 + Math.random() * 1.4,
+        wobbleAmount: reducedMotion ? 0 : 4
       });
     }
 
@@ -82,7 +95,11 @@
         cursor.smoothY += (cursor.y - cursor.smoothY) * 0.24;
         const distance = Math.hypot(cursor.smoothX - cursor.previousX, cursor.smoothY - cursor.previousY);
         if (distance > 1.5) {
-          const steps = Math.min(3, Math.max(1, Math.floor(distance / 14)));
+          const reducedMotion = motionQuery.matches;
+          const steps = Math.min(
+            reducedMotion ? 2 : 5,
+            Math.max(1, Math.floor(distance / 8))
+          );
           for (let step = 1; step <= steps; step += 1) {
             const ratio = step / steps;
             addParticle(
@@ -107,7 +124,7 @@
           continue;
         }
         particle.wobble += particle.wobbleSpeed * seconds;
-        particle.x += (particle.velocityX + Math.sin(particle.wobble) * 4) * seconds;
+        particle.x += (particle.velocityX + Math.sin(particle.wobble) * particle.wobbleAmount) * seconds;
         particle.y += particle.velocityY * seconds;
         drawParticle(particle);
       }
@@ -121,8 +138,7 @@
       frameId = requestAnimationFrame(animate);
     }
 
-    function onPointerMove(event) {
-      if (event.pointerType && event.pointerType !== 'mouse') return;
+    function onMouseMove(event) {
       cursor.x = event.clientX;
       cursor.y = event.clientY;
       pointerInside = true;
@@ -152,26 +168,32 @@
 
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas, { passive: true });
-    window.addEventListener('pointermove', onPointerMove, { passive: true });
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
     document.documentElement.addEventListener('mouseleave', onPointerLeave);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
-    return function destroy() {
+    function destroy() {
       if (frameId) cancelAnimationFrame(frameId);
       window.removeEventListener('resize', resizeCanvas);
-      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('mousemove', onMouseMove);
       document.documentElement.removeEventListener('mouseleave', onPointerLeave);
       document.removeEventListener('visibilitychange', onVisibilityChange);
       canvas.remove();
-    };
+    }
+
+    destroy.handleMouseMove = onMouseMove;
+    return destroy;
   }
 
   function handleMouseDetection(event) {
-    if (event.pointerType !== 'mouse') return;
     if (!canStartEffect()) return;
     if (destroyEffect) return;
 
     destroyEffect = createEffect();
+
+    if (typeof destroyEffect.handleMouseMove === 'function') {
+      destroyEffect.handleMouseMove(event);
+    }
   }
 
   function disableEffectWhenNeeded() {
@@ -181,7 +203,6 @@
     destroyEffect = null;
   }
 
-  window.addEventListener('pointermove', handleMouseDetection, { passive: true });
+  window.addEventListener('mousemove', handleMouseDetection, { passive: true });
   desktopQuery.addEventListener('change', disableEffectWhenNeeded);
-  motionQuery.addEventListener('change', disableEffectWhenNeeded);
 }());
