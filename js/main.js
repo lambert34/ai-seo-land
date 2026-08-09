@@ -44,6 +44,7 @@ function trackMetrikaClick(event) {
   const goals = new Set();
   const href = (target.getAttribute('href') || '').toLowerCase();
   const trackingType = target.dataset.metrikaClick;
+  const isZarubReferral = trackingType === 'zarub-referral';
   const isBitrixPage = document.body.classList.contains('bitrix-support-page');
   const isSiteHelpPage = document.body.classList.contains('site-help-page');
 
@@ -64,7 +65,8 @@ function trackMetrikaClick(event) {
   if (isLandingPage && trackingType === 'landing-phone') goals.add('landing_click_phone');
 
   if (href.startsWith('tel:')) goals.add('click_phone');
-  if (target.matches('a') && isTelegramLink(target)) goals.add('click_telegram');
+  if (isZarubReferral) goals.add('zarub_referral_click');
+  if (target.matches('a') && isTelegramLink(target) && !isZarubReferral) goals.add('click_telegram');
   if (target.matches('a') && isWhatsAppLink(target)) goals.add('click_whatsapp');
   if (href.startsWith('mailto:')) goals.add('click_email');
 
