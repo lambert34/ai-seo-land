@@ -1,0 +1,10 @@
+{
+  "name": "lambert-digital-articles",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build:articles",
+    "build:articles": "node scripts/build-articles.mjs",
+    "test:articles": "node --test tests/articles.test.mjs"
+  }
+}

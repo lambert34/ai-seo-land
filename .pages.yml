@@ -1,0 +1,159 @@
+media:
+  input: assets/images/articles
+  output: /assets/images/articles
+
+content:
+  - name: articles
+    label: Статьи
+    type: collection
+    path: content/articles
+    filename: '{fields.slug}.yml'
+    format: yaml
+    view:
+      fields: [title, status, category, datePublished]
+      primary: title
+      sort: [datePublished, title]
+      default:
+        sort: datePublished
+        order: desc
+    fields:
+      - { name: title, label: Заголовок, type: string, required: true }
+      - name: slug
+        label: Slug
+        type: string
+        required: true
+        description: 'Только строчные латинские буквы, цифры и дефисы. Изменение slug опубликованной статьи изменит URL — настройте редирект вручную.'
+        pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+      - { name: description, label: Краткое описание, type: text, required: true }
+      - name: category
+        label: Категория
+        type: select
+        required: true
+        options:
+          values:
+            - { value: site-support, label: Сайты и техподдержка }
+            - { value: bitrix, label: 1С-Битрикс }
+            - { value: landing, label: Лендинги }
+            - { value: seo, label: SEO и аналитика }
+            - { value: ai, label: AI и автоматизация }
+      - { name: datePublished, label: Дата публикации, type: date, required: true }
+      - { name: dateModified, label: Дата изменения, type: date, description: 'Меняйте только при содержательном обновлении статьи.' }
+      - name: status
+        label: Статус публикации
+        type: select
+        required: true
+        default: draft
+        options:
+          values:
+            - { value: draft, label: Черновик }
+            - { value: published, label: Опубликовано }
+      - name: seo
+        label: SEO
+        type: object
+        fields:
+          - { name: title, label: SEO Title, type: string, description: 'Если пусто, используется «Заголовок | Lambert/Digital».' }
+          - { name: description, label: SEO Description, type: text, required: true }
+          - name: robots
+            label: Robots
+            type: select
+            default: 'index, follow'
+            options:
+              values: ['index, follow', 'noindex, follow']
+          - { name: ogImage, label: OG Image, type: image, description: 'Необязательно; fallback — /assets/images/A.png.' }
+      - name: cover
+        label: Обложка карточки
+        type: object
+        fields:
+          - { name: alt, label: Alt обложки, type: string }
+          - { name: className, label: CSS-класс существующей обложки, type: string, hidden: true }
+      - { name: lead, label: Вступление, type: rich-text, required: true }
+      - name: heroCta
+        label: CTA во вступлении
+        type: object
+        description: 'Необязательная кнопка под вступлением (используется в статье Zarub).'
+        fields:
+          - { name: label, label: Текст кнопки, type: string }
+          - { name: url, label: URL, type: string }
+          - { name: linkType, label: Тип ссылки, type: select, options: { values: [internal, external, affiliate] } }
+          - { name: tracking, label: Tracking, type: string }
+      - name: blocks
+        label: Содержание статьи
+        type: block
+        list: true
+        blocks:
+          - name: text
+            label: Текст
+            fields: [{ name: content, label: Текст, type: rich-text, required: true }]
+          - name: h2
+            label: Заголовок H2
+            fields:
+              - { name: heading, label: Заголовок, type: string, required: true }
+              - { name: anchor, label: Anchor, type: string, description: 'Оставьте пустым для автоматического anchor.' }
+          - name: h3
+            label: Заголовок H3
+            fields:
+              - { name: heading, label: Заголовок, type: string, required: true }
+              - { name: anchor, label: Anchor, type: string }
+          - name: list
+            label: Список
+            fields:
+              - { name: ordered, label: Нумерованный, type: boolean, default: false }
+              - { name: items, label: Элементы, type: string, list: true, required: true }
+          - name: image
+            label: Изображение
+            fields:
+              - { name: file, label: Файл, type: image, required: true }
+              - { name: alt, label: Alt, type: string, required: true }
+              - { name: caption, label: Подпись, type: string }
+              - { name: width, label: Width, type: number }
+              - { name: height, label: Height, type: number }
+          - name: callout
+            label: Врезка
+            fields:
+              - { name: heading, label: Заголовок, type: string }
+              - { name: text, label: Текст, type: text, required: true }
+          - name: cta
+            label: CTA
+            fields:
+              - { name: heading, label: Заголовок, type: string, required: true }
+              - { name: description, label: Описание, type: text, required: true }
+              - { name: label, label: Текст кнопки, type: string, required: true }
+              - { name: url, label: URL, type: string, required: true }
+              - name: linkType
+                label: Тип ссылки
+                type: select
+                required: true
+                options: { values: [internal, external, affiliate] }
+              - { name: tracking, label: Tracking, type: string, description: 'Например: zarub-referral.' }
+          - name: code
+            label: Код
+            fields:
+              - { name: language, label: Язык, type: string }
+              - { name: code, label: Код, type: code, required: true }
+          - name: quote
+            label: Цитата
+            fields:
+              - { name: text, label: Текст, type: text, required: true }
+              - { name: source, label: Автор / источник, type: string }
+          - name: table
+            label: Таблица
+            fields:
+              - { name: headers, label: Заголовки колонок, type: string, list: true, required: true }
+              - name: rows
+                label: Строки
+                type: object
+                list: true
+                fields: [{ name: cells, label: Ячейки, type: string, list: true, required: true }]
+          - name: divider
+            label: Разделитель
+            fields: []
+          - name: faq
+            label: FAQ
+            fields:
+              - name: items
+                label: Вопросы и ответы
+                type: object
+                list: true
+                fields:
+                  - { name: question, label: Вопрос, type: string, required: true }
+                  - { name: answer, label: Ответ, type: text, required: true }
