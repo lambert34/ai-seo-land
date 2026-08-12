@@ -9,6 +9,31 @@ const ALLOWED_STATUS = new Set(['draft', 'published']);
 const ALLOWED_ROBOTS = new Set(['index, follow', 'noindex, follow']);
 const GENERATED = '<!-- Generated from CMS content. Do not edit manually. -->';
 
+// Pages CMS writes YAML (and identifies block variants with `_block`). Keep the
+// JSON reader for the previously migrated sources, which are valid YAML too.
+function parseSource(source) {
+  try { return JSON.parse(source); } catch {}
+  const physical=source.replace(/\r/g,'').split('\n'),lines=[];
+  for(let i=0;i<physical.length;i++){let line=physical[i];const value=line.match(/^\s*[^:]+:\s*(".*)$/)?.[1];if(value&&(value.match(/(?<!\\)"/g)||[]).length%2){while(++i<physical.length){line+=` ${physical[i].trim()}`;if((physical[i].match(/(?<!\\)"/g)||[]).length%2)break;}}lines.push(line);}
+  const scalar=value=>{const v=value.trim();if(!v)return null;if(v==='true'||v==='false')return v==='true';if(v==='null'||v==='~')return null;if(/^[-+]?\d+(?:\.\d+)?$/.test(v))return Number(v);if(v.startsWith('"'))return JSON.parse(v);if(v.startsWith("'")&&v.endsWith("'"))return v.slice(1,-1).replaceAll("''", "'");if(/^[\[{]/.test(v))throw new Error(`неподдерживаемое значение: ${v}`);return v;};
+  const indent=line=>(line.match(/^ */)||[''])[0].length;
+  function read(start,level) {
+    let i=start, result;
+    while(i<lines.length){const raw=lines[i];if(!raw.trim()||raw.trimStart().startsWith('#')){i++;continue;}const n=indent(raw);if(n<level)break;if(n>level)throw new Error(`неожиданный отступ в строке ${i+1}`);
+      const text=raw.slice(level), list=text.startsWith('- ');
+      if(result===undefined)result=list?[]:{};if(list!==Array.isArray(result))throw new Error(`смешаны список и объект в строке ${i+1}`);
+      const item=list?text.slice(2):text;const match=item.match(/^([^:]+):(.*)$/);
+      if(list&&!match){result.push(scalar(item));i++;continue;}if(!match)throw new Error(`ожидалось поле в строке ${i+1}`);
+      const key=match[1].trim(), rest=match[2].trim();let value;
+      if(rest==='>-'||rest==='>+'||rest==='|'||rest==='|-'){const chunks=[];i++;while(i<lines.length&&(!lines[i].trim()||indent(lines[i])>level)){chunks.push(lines[i].slice(Math.min(lines[i].length,level+2)));i++;}value=chunks.join('\n').replace(/\n+$/,'');}
+      else if(rest){value=scalar(rest);i++;}
+      else {i++;const child=read(i,level+2);value=child.value;i=child.next;}
+      if(list){const object={[key]:value};while(i<lines.length&&lines[i].trim()&&indent(lines[i])===level+2&&!lines[i].slice(level+2).startsWith('- ')){const childLine=lines[i].slice(level+2).match(/^([^:]+):(.*)$/);if(!childLine)break;const k=childLine[1].trim(),r=childLine[2].trim();if(r==='>-'||r==='>+'||r==='|'||r==='|-'){const chunks=[];i++;while(i<lines.length&&(!lines[i].trim()||indent(lines[i])>level+2)){chunks.push(lines[i].slice(Math.min(lines[i].length,level+4)));i++;}object[k]=chunks.join('\n').replace(/\n+$/,'');}else if(r){object[k]=scalar(r);i++;}else{i++;const child=read(i,level+4);object[k]=child.value;i=child.next;}}result.push(object);}else result[key]=value;
+    } return {value:result,next:i};
+  }
+  return read(0,0).value;
+}
+
 const escapeHtml = (value = '') => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
 const plain = (value = '') => String(value).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 const safeUrl = (url, file) => {
@@ -18,13 +43,27 @@ const safeUrl = (url, file) => {
 };
 const linkAttrs = (kind, tracking = '') => `${kind === 'internal' ? '' : ' target="_blank"'}${kind === 'affiliate' ? ' rel="sponsored noopener noreferrer"' : kind === 'external' ? ' rel="noopener noreferrer"' : ''}${tracking ? ` data-metrika-click="${escapeHtml(tracking)}"` : ''}`;
 
-// Rich text is stored as restricted HTML by Pages CMS. Scripts, event handlers and unsafe URLs are rejected.
+// Rich text may be stored as restricted HTML or Markdown. Scripts, event handlers and unsafe URLs are rejected.
 function sanitizeRich(value, file) {
   let html = String(value || '');
+  // Pages CMS currently serializes rich-text as Markdown. Existing HTML remains
+  // untouched; Markdown is converted before the same security checks run.
+  if (!/<[a-z][\s\S]*>/i.test(html)) html = markdownToHtml(html);
   if (/<script\b|\son\w+\s*=|(?:javascript|vbscript):|data\s*:\s*text\/html/i.test(html)) throw new Error(`${file}\nопасный HTML в текстовом блоке`);
   html = html.replace(/<!--([\s\S]*?)-->/g, '').replace(/<(iframe|object|embed|style)[^>]*>[\s\S]*?<\/\1>/gi, '');
   for (const match of html.matchAll(/href="([^"]+)"/g)) safeUrl(match[1], file);
   return html;
+}
+
+function markdownToHtml(markdown) {
+  const inline=value=>escapeHtml(value).replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2">$1</a>');
+  const out=[];let paragraph=[],list=[],listTag='ul';const flush=()=>{if(paragraph.length){out.push(`<p>${inline(paragraph.join(' '))}</p>`);paragraph=[];}if(list.length){out.push(`<${listTag}>${list.map(x=>`<li>${inline(x)}</li>`).join('')}</${listTag}>`);list=[];}};
+  for(const raw of String(markdown).split(/\n/)){const line=raw.trim();if(!line){flush();continue;}const heading=line.match(/^(#{2,3})\s+(.+)$/);if(heading){flush();const tag=`h${heading[1].length}`;out.push(`<${tag}>${inline(heading[2])}</${tag}>`);continue;}const bullet=line.match(/^([-*]|\d+\.)\s+(.+)$/);if(bullet){const tag=/\d/.test(bullet[1])?'ol':'ul';if(paragraph.length||(list.length&&tag!==listTag))flush();listTag=tag;list.push(bullet[2]);continue;}if(list.length)flush();paragraph.push(line);}flush();return out.join('\n');
+}
+
+function normalizeInternalUrl(url, linkType) {
+  if(linkType!=='internal')return url;
+  try { const parsed=new URL(url,SITE); return parsed.origin===SITE ? `${parsed.pathname}${parsed.search}${parsed.hash}` : url; } catch { return url; }
 }
 
 export function slugify(value) {
@@ -84,7 +123,7 @@ function renderBlock(b, file) {
     case 'list': return `<${b.ordered?'ol':'ul'}>${b.items.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</${b.ordered?'ol':'ul'}>`;
     case 'image': return `<figure><img src="${escapeHtml(safeUrl(b.file,file))}" alt="${escapeHtml(b.alt)}" loading="lazy"${b.width?` width="${Number(b.width)}"`:''}${b.height?` height="${Number(b.height)}"`:''}>${b.caption?`<figcaption>${escapeHtml(b.caption)}</figcaption>`:''}</figure>`;
     case 'callout': return `<aside class="article-callout">${b.heading?`<strong>${escapeHtml(b.heading)}</strong>`:''}${b.text?`<p>${escapeHtml(b.text)}</p>`:''}</aside>`;
-    case 'cta': return `<aside class="article-cta"><h2>${escapeHtml(b.heading)}</h2><p>${escapeHtml(b.description)}</p><a href="${escapeHtml(safeUrl(b.url,file))}"${linkAttrs(b.linkType,b.tracking)}>${escapeHtml(b.label)}</a></aside>`;
+    case 'cta': return `<aside class="article-cta"><h2>${escapeHtml(b.heading)}</h2><p>${escapeHtml(b.description)}</p><a href="${escapeHtml(normalizeInternalUrl(safeUrl(b.url,file),b.linkType))}"${linkAttrs(b.linkType,b.tracking)}>${escapeHtml(b.label)}</a></aside>`;
     case 'code': return `<pre><code${b.language?` class="language-${escapeHtml(b.language)}"`:''}>${escapeHtml(b.code)}</code></pre>`;
     case 'quote': return `<blockquote><p>${escapeHtml(b.text)}</p>${b.source?`<cite>${escapeHtml(b.source)}</cite>`:''}</blockquote>`;
     case 'table': return `<div class="article-table-wrap"><table class="article-table"><thead><tr>${b.headers.map(x=>`<th>${escapeHtml(x)}</th>`).join('')}</tr></thead><tbody>${b.rows.map(r=>`<tr>${r.cells.map(x=>`<td>${escapeHtml(x)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
@@ -106,14 +145,14 @@ async function renderArticle(a, template, file) {
   const graph=[{'@type':'BlogPosting',headline:a.title,description:a.seo.description,image:`${SITE}${a.seo.ogImage||'/assets/images/A.png'}`,datePublished:a.datePublished,dateModified:a.dateModified||a.datePublished,mainEntityOfPage:canonical,author:{'@type':'Person','@id':`${SITE}/#person`,name:'Александр Ламберт',url:`${SITE}/about/`},publisher:{'@id':`${SITE}/#business`}},{'@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Главная',item:`${SITE}/`},{'@type':'ListItem',position:2,name:'Статьи',item:`${SITE}/articles/`},{'@type':'ListItem',position:3,name:CATEGORIES[a.category]},{'@type':'ListItem',position:4,name:a.title}]}];
   if(faq.length)graph.push({'@type':'FAQPage',mainEntity:faq.map(x=>({'@type':'Question',name:x.question,acceptedAnswer:{'@type':'Answer',text:x.answer}}))});
   const head=`<title>${escapeHtml(a.seo.title||`${a.title} | Lambert/Digital`)}</title><meta name="description" content="${escapeHtml(a.seo.description)}"><meta name="robots" content="${robots}"><link rel="canonical" href="${canonical}"><meta property="og:type" content="article"><meta property="og:title" content="${escapeHtml(a.title)}"><meta property="og:description" content="${escapeHtml(a.seo.description)}"><meta property="og:url" content="${canonical}"><meta property="og:image" content="${SITE}${a.seo.ogImage||'/assets/images/A.png'}"><meta name="twitter:card" content="summary_large_image"><link rel="icon" href="/assets/icons/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/css/header.css"><link rel="stylesheet" href="/css/contacts.css"><link rel="stylesheet" href="/css/responsive.css"><link rel="stylesheet" href="/css/articles.css"><link rel="stylesheet" href="/css/article.css"><script type="application/ld+json">${jsonLd({'@context':'https://schema.org','@graph':graph})}</script>`;
-  const heroCta=a.heroCta?`<div class="article-referral-cta"><a class="button article-referral-button" href="${escapeHtml(safeUrl(a.heroCta.url,file))}"${linkAttrs(a.heroCta.linkType,a.heroCta.tracking)}>${escapeHtml(a.heroCta.label)}</a></div>`:'';
+  const heroCta=a.heroCta?`<div class="article-referral-cta"><a class="button article-referral-button" href="${escapeHtml(normalizeInternalUrl(safeUrl(a.heroCta.url,file),a.heroCta.linkType))}"${linkAttrs(a.heroCta.linkType,a.heroCta.tracking)}>${escapeHtml(a.heroCta.label)}</a></div>`:'';
   const article=`<header class="article-hero"><nav class="breadcrumbs" aria-label="Хлебные крошки"><a href="/">Главная</a><span aria-hidden="true">→</span><a href="/articles/">Статьи</a><span aria-hidden="true">→</span><span>${CATEGORIES[a.category]}</span><span aria-hidden="true">→</span><span aria-current="page">${escapeHtml(a.title)}</span></nav><p class="article-hero__category">${CATEGORIES[a.category]}</p><h1>${escapeHtml(a.title)}</h1><div class="article-meta"><span>Автор: <a href="/about/" rel="author">Александр Ламберт</a></span><span>Опубликовано: <time datetime="${a.datePublished}">${formatDate(a.datePublished)}</time></span><span>Обновлено: <time datetime="${a.dateModified||a.datePublished}">${formatDate(a.dateModified||a.datePublished)}</time></span><span>Время чтения: ${minuteLabel(minutes)}</span></div><div class="article-lead">${sanitizeRich(a.lead,file)}</div>${heroCta}</header>${toc?`<nav class="article-toc" aria-label="Содержание статьи"><h2>Содержание</h2><ol>${toc}</ol></nav>`:''}<div class="article-body">${body}</div><aside class="author-card"><div><h2>Об авторе</h2><h3>Александр Ламберт</h3><p>Digital Project / Account Manager, основатель Lambert/Digital. Работаю с разработкой, поддержкой, SEO, рекламой и аналитикой сайтов.</p>${a.authorExtra?`<p>${escapeHtml(a.authorExtra)}</p>`:''}<a href="/about/" rel="author">Подробнее об Александре Ламберте →</a></div></aside>`;
   return template.replace('{{HEAD}}',head).replace('{{HEADER}}',HEADER).replace('{{ARTICLE}}',article).replace('{{FOOTER}}',FOOTER);
 }
 
 export async function buildArticles({ root=ROOT, contentDir=path.join(root,'content/articles'), outputDir=path.join(root,'articles'), sitemapPath=path.join(root,'sitemap.xml') }={}) {
   const names=(await fs.readdir(contentDir)).filter(x=>/\.ya?ml$/.test(x)).sort(), articles=[], slugs=new Set();
-  for(const name of names){const file=path.join(contentDir,name);let a;try{a=JSON.parse(await fs.readFile(file,'utf8'));}catch(e){throw new Error(`${file}\nневалидный YAML/JSON: ${e.message}`);}validate(a,file,slugs);a.__file=file;articles.push(a);}
+  for(const name of names){const file=path.join(contentDir,name);let a;try{a=parseSource(await fs.readFile(file,'utf8'));}catch(e){throw new Error(`${file}\nневалидный YAML/JSON: ${e.message}`);}a.blocks=(a.blocks||[]).map(block=>({...block,type:block.type||block._block}));validate(a,file,slugs);a.__file=file;articles.push(a);}
   const published=articles.filter(a=>a.status==='published').sort((a,b)=>b.datePublished.localeCompare(a.datePublished)||b.slug.localeCompare(a.slug));
   const articleTemplate=await fs.readFile(path.join(root,'templates/article.html'),'utf8'), cardTemplate=await fs.readFile(path.join(root,'templates/article-card.html'),'utf8');
   const live=new Set(published.map(a=>a.slug)); for(const entry of await fs.readdir(outputDir,{withFileTypes:true})){if(entry.isDirectory()&&entry.name!=='demo-article'&&!live.has(entry.name))await fs.rm(path.join(outputDir,entry.name),{recursive:true,force:true});}
