@@ -49,4 +49,60 @@ test('image without alt',()=>expectError(valid({blocks:[{type:'image',file:'/a.w
 test('unsafe URL and invalid YAML fail clearly',async()=>{await expectError(valid({blocks:[{type:'cta',heading:'x',description:'x',label:'x',url:'javascript:alert(1)',linkType:'external'}]}),/недопустимый URL/);const dir=await fixture({bad:'not: [valid'});await assert.rejects(()=>buildArticles({root:dir}),/невалидный YAML\/JSON/);});
 test('automatic and duplicate anchors are stable',()=>assert.deepEqual(assignAnchors([{type:'h2',heading:'Тест раздел'},{type:'h2',heading:'Тест раздел'}]).map(x=>x.anchor),['test-razdel','test-razdel-2']));
 test('reading time and Russian forms',()=>{assert.equal(readingMinutes(valid({lead:'слово '.repeat(191),blocks:[]})),2);assert.equal(minuteLabel(1),'1 минута');assert.equal(minuteLabel(2),'2 минуты');assert.equal(minuteLabel(5),'5 минут');assert.equal(minuteLabel(11),'11 минут');assert.equal(minuteLabel(21),'21 минута');});
-test('production pages keep required SEO, TOC targets and draft/demo exclusions',async()=>{const {articles,published}=await buildArticles();const files=['pochemu-sayt-na-bitrix-rabotaet-medlenno','kak-oplatit-chatgpt-iz-rossii'];assert.equal(published.length,2);assert.equal(articles.find(a=>a.slug==='sayt-ne-rabotaet-chto-delat')?.status,'draft');for(const slug of files){const html=await fs.readFile(path.join(root,`articles/${slug}/index.html`),'utf8');assert.equal((html.match(/<h1>/g)||[]).length,1);assert.match(html,/BlogPosting/);assert.match(html,/BreadcrumbList/);for(const id of [...html.matchAll(/<a href="#([^"]+)"/g)].map(x=>x[1]))assert.match(html,new RegExp(`id="${id}"`));}await assert.rejects(fs.access(path.join(root,'articles/sayt-ne-rabotaet-chto-delat/index.html')));await fs.access(path.join(root,'assets/images/articles/404.png'));const catalog=await fs.readFile(path.join(root,'articles/index.html'),'utf8');assert.doesNotMatch(catalog,/sayt-ne-rabotaet-chto-delat/);assert.equal((catalog.match(/article-card__clickable/g)||[]).length,2);const bitrix=await fs.readFile(path.join(root,'articles/pochemu-sayt-na-bitrix-rabotaet-medlenno/index.html'),'utf8');const zarub=await fs.readFile(path.join(root,'articles/kak-oplatit-chatgpt-iz-rossii/index.html'),'utf8');assert.match(bitrix,/FAQPage/);assert.doesNotMatch(zarub,/FAQPage/);assert.match(zarub,/ref_iSQcKm/);assert.match(zarub,/zarub-referral/);const map=await fs.readFile(path.join(root,'sitemap.xml'),'utf8');assert.doesNotMatch(map,/demo-article|sayt-ne-rabotaet-chto-delat/);assert.match(map,/pochemu-sayt/);assert.match(map,/kak-oplatit/);assert.match(map,/\/site-help\//);assert.match(map,/\/bitrix-support\//);});
+test('production pages follow source publication and indexing rules', async () => {
+  const { articles } = await buildArticles();
+  const expectedPublished = articles.filter(article => article.status === 'published');
+  const expectedDrafts = articles.filter(article => article.status === 'draft');
+  const catalog = await fs.readFile(path.join(root, 'articles/index.html'), 'utf8');
+  const map = await fs.readFile(path.join(root, 'sitemap.xml'), 'utf8');
+
+  assert.equal(
+    (catalog.match(/article-card__clickable/g) || []).length,
+    expectedPublished.length
+  );
+
+  for (const article of expectedPublished) {
+    const articleUrl = `/articles/${article.slug}/`;
+    const html = await fs.readFile(
+      path.join(root, `articles/${article.slug}/index.html`),
+      'utf8'
+    );
+
+    assert.equal((html.match(/<h1>/g) || []).length, 1);
+    assert.match(html, new RegExp(`rel="canonical" href="https://lambert-digital\\.ru${articleUrl}"`));
+    assert.match(html, /BlogPosting/);
+    assert.match(html, /BreadcrumbList/);
+    for (const id of [...html.matchAll(/<a href="#([^"]+)"/g)].map(match => match[1])) {
+      assert.match(html, new RegExp(`id="${id}"`));
+    }
+    assert.match(catalog, new RegExp(`href="${articleUrl}"`));
+
+    const hasFaq = article.blocks.some(block => (block.type || block._block) === 'faq');
+    hasFaq ? assert.match(html, /FAQPage/) : assert.doesNotMatch(html, /FAQPage/);
+
+    const sitemapUrl = `https://lambert-digital.ru${articleUrl}`;
+    if ((article.seo.robots || 'index, follow') === 'index, follow') {
+      assert.match(map, new RegExp(`<loc>${sitemapUrl}</loc>`));
+    } else {
+      assert.doesNotMatch(map, new RegExp(`<loc>${sitemapUrl}</loc>`));
+    }
+  }
+
+  for (const article of expectedDrafts) {
+    await assert.rejects(fs.access(path.join(root, `articles/${article.slug}/index.html`)));
+    assert.doesNotMatch(catalog, new RegExp(`href="/articles/${article.slug}/"`));
+    assert.doesNotMatch(map, new RegExp(`<loc>https://lambert-digital\\.ru/articles/${article.slug}/</loc>`));
+  }
+
+  await fs.access(path.join(root, 'assets/images/articles/404.png'));
+  assert.doesNotMatch(map, /demo-article/);
+
+  const bitrix = await fs.readFile(path.join(root, 'articles/pochemu-sayt-na-bitrix-rabotaet-medlenno/index.html'), 'utf8');
+  const zarub = await fs.readFile(path.join(root, 'articles/kak-oplatit-chatgpt-iz-rossii/index.html'), 'utf8');
+  assert.match(bitrix, /FAQPage/);
+  assert.doesNotMatch(zarub, /FAQPage/);
+  assert.match(zarub, /ref_iSQcKm/);
+  assert.match(zarub, /zarub-referral/);
+  assert.match(map, /\/site-help\//);
+  assert.match(map, /\/bitrix-support\//);
+});
