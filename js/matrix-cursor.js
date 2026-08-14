@@ -2,9 +2,9 @@
   'use strict';
 
   const MIN_WIDTH = 901;
-  const SCALE = 0.8;
-  const WIDTH = 34;
-  const HEIGHT = 37;
+  const SCALE = 0.56;
+  const WIDTH = 24;
+  const HEIGHT = 26;
   const HOTSPOT = 1 * SCALE;
   const GLYPHS = '01AXZM/<>+-:#*';
   const INTERACTIVE_SELECTOR = [
