@@ -2,8 +2,10 @@
   'use strict';
 
   const MIN_WIDTH = 901;
-  const WIDTH = 42;
-  const HEIGHT = 46;
+  const SCALE = 0.56;
+  const WIDTH = 24;
+  const HEIGHT = 26;
+  const HOTSPOT = 1 * SCALE;
   const GLYPHS = '01AXZM/<>+-:#*';
   const INTERACTIVE_SELECTOR = [
     'a', 'button', 'summary', 'select', 'label[for]',
@@ -37,11 +39,11 @@
 
   function createColumns() {
     const result = [];
-    const positions = [5, 12, 19, 26];
+    const positions = [5, 12, 19, 26].map((position) => position * SCALE);
     for (let columnIndex = 0; columnIndex < positions.length; columnIndex += 1) {
       const glyphs = [];
       for (let row = 0; row < 5; row += 1) glyphs.push(randomGlyph());
-      result.push({ x: positions[columnIndex], offset: Math.random() * 8, glyphs });
+      result.push({ x: positions[columnIndex], offset: Math.random() * 8 * SCALE, glyphs });
     }
     return result;
   }
@@ -49,7 +51,7 @@
   function updateRain() {
     for (let i = 0; i < columns.length; i += 1) {
       const column = columns[i];
-      column.offset = (column.offset + (pointerMode ? 2.1 : 1.35)) % 8;
+      column.offset = (column.offset + (pointerMode ? 2.1 : 1.35) * SCALE) % (8 * SCALE);
       for (let row = column.glyphs.length - 1; row > 0; row -= 1) {
         column.glyphs[row] = column.glyphs[row - 1];
       }
@@ -63,21 +65,21 @@
     context.clearRect(0, 0, WIDTH, HEIGHT);
     context.save();
     if (pressed) {
-      context.translate(2.1, 2.3);
+      context.translate(2.1 * SCALE, 2.3 * SCALE);
       context.scale(0.9, 0.9);
     } else if (pointerMode) {
       context.scale(1.08, 1.08);
     }
     if (!reducedMotion) {
       context.shadowColor = 'rgba(55,255,100,.15)';
-      context.shadowBlur = pointerMode ? 5 : 3;
+      context.shadowBlur = (pointerMode ? 5 : 3) * SCALE;
     }
     context.fillStyle = 'rgba(0,5,2,.88)';
     context.fill(arrow);
     context.shadowBlur = 0;
     context.save();
     context.clip(arrow);
-    context.font = '700 7px monospace';
+    context.font = `700 ${7 * SCALE}px monospace`;
     context.textAlign = 'center';
     context.textBaseline = 'top';
     const colors = pressed
@@ -87,17 +89,17 @@
       const column = columns[i];
       for (let row = 0; row < column.glyphs.length; row += 1) {
         context.fillStyle = colors[row];
-        context.fillText(column.glyphs[row], column.x, row * 8 + column.offset - 7);
+        context.fillText(column.glyphs[row], column.x, row * 8 * SCALE + column.offset - 7 * SCALE);
       }
     }
     if (pointerMode) {
       context.fillStyle = pressed ? '#D8FFD8' : '#7CFF7A';
-      context.font = '700 9px monospace';
-      context.fillText('>', 22, 27);
+      context.font = `700 ${9 * SCALE}px monospace`;
+      context.fillText('>', 22 * SCALE, 27 * SCALE);
     }
     context.restore();
     context.strokeStyle = pointerMode ? 'rgba(105,255,140,.82)' : 'rgba(80,255,120,.55)';
-    context.lineWidth = 1;
+    context.lineWidth = 1 * SCALE;
     context.stroke(arrow);
     context.restore();
   }
@@ -153,13 +155,13 @@
       if (!nextContext) return;
       nextContext.setTransform(dpr, 0, 0, dpr, 0, 0);
       const nextArrow = new Path2D();
-      nextArrow.moveTo(1, 1);
-      nextArrow.lineTo(32, 28);
-      nextArrow.lineTo(20, 30);
-      nextArrow.lineTo(27, 42);
-      nextArrow.lineTo(20, 45);
-      nextArrow.lineTo(13, 32);
-      nextArrow.lineTo(5, 40);
+      nextArrow.moveTo(1 * SCALE, 1 * SCALE);
+      nextArrow.lineTo(32 * SCALE, 28 * SCALE);
+      nextArrow.lineTo(20 * SCALE, 30 * SCALE);
+      nextArrow.lineTo(27 * SCALE, 42 * SCALE);
+      nextArrow.lineTo(20 * SCALE, 45 * SCALE);
+      nextArrow.lineTo(13 * SCALE, 32 * SCALE);
+      nextArrow.lineTo(5 * SCALE, 40 * SCALE);
       nextArrow.closePath();
       document.body.appendChild(nextCanvas);
       canvas = nextCanvas;
@@ -168,7 +170,7 @@
       columns = createColumns();
       x = event.clientX;
       y = event.clientY;
-      canvas.style.transform = `translate3d(${x - 1}px,${y - 1}px,0)`;
+      canvas.style.transform = `translate3d(${x - HOTSPOT}px,${y - HOTSPOT}px,0)`;
       document.documentElement.classList.add('matrix-cursor-active');
       updateTarget(event.target);
       setCanvasVisible(true);
@@ -198,7 +200,7 @@
     if (!canvas) return;
     x = event.clientX;
     y = event.clientY;
-    canvas.style.transform = `translate3d(${x - 1}px,${y - 1}px,0)`;
+    canvas.style.transform = `translate3d(${x - HOTSPOT}px,${y - HOTSPOT}px,0)`;
     updateTarget(event.target);
     setCanvasVisible(true);
   }
