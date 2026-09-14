@@ -82,8 +82,6 @@
   }
   </script>
   <!-- Yandex.Metrika counter -->
-  <script>(function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)})(window,document,"script","https://mc.yandex.ru/metrika/tag.js","ym");ym(109997768,"init",{clickmap:true,trackLinks:true,accurateTrackBounce:true,webvisor:true});</script>
-  <noscript><div><img src="https://mc.yandex.ru/watch/109997768" style="position:absolute;left:-9999px" alt=""></div></noscript>
   <!-- /Yandex.Metrika counter -->
 </head>
 <body class="site-help-page">
@@ -300,7 +298,7 @@
             <input id="site-help-contact" name="contact" autocomplete="tel" required>
             <label for="site-help-description">Описание проблемы</label>
             <textarea id="site-help-description" name="description" rows="6" required></textarea>
-            <button class="button" type="submit">Получить диагностику</button>
+            <label class="form-consent"><input type="checkbox" name="personal_data_consent" value="accepted" required><span>Я даю согласие на обработку персональных данных в соответствии с <a href="/personal-data-consent/" target="_blank">Согласием на обработку персональных данных</a> и ознакомлен с <a href="/privacy/" target="_blank">Политикой обработки персональных данных</a>.</span></label><button class="button" type="submit">Получить диагностику</button>
             <p class="form-status" data-form-status role="status" aria-live="polite"></p>
           </form>
           <aside class="site-help-direct" aria-label="Прямые контакты">
@@ -325,10 +323,10 @@
         <a href="https://wa.me/79965013246" target="_blank" rel="noopener" data-metrika-click="site-help-whatsapp">WhatsApp</a>
         <a href="mailto:aleksandrlambert@gmail.com">Email</a>
       </div>
-      <p class="copyright">© 2026 Lambert/Digital. Александр Ламберт.</p>
+      <nav class="legal-links" aria-label="Юридическая информация"><a href="/privacy/">Политика конфиденциальности</a><a href="/personal-data-consent/">Согласие на обработку ПД</a><a href="/cookies/">Cookie</a></nav><p class="copyright">© 2026 Lambert/Digital. Александр Ламберт.</p>
     </div>
   </footer>
   <button class="to-top" type="button" data-to-top aria-label="Наверх">↑</button>
-  <script src="/js/main.js"></script>
+  <script src="/js/cookie-consent.js"></script><script src="/js/main.js"></script>
 </body>
 </html>
