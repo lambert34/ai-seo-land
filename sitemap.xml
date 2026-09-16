@@ -37,6 +37,21 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://lambert-digital.ru/privacy/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://lambert-digital.ru/personal-data-consent/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://lambert-digital.ru/cookies/</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
     <loc>https://lambert-digital.ru/articles/</loc>
     <lastmod>2026-08-11</lastmod>
     <changefreq>weekly</changefreq>
