@@ -1,0 +1,62 @@
+{
+  "title": "How to Pay for ChatGPT and International Services from Russia in 2026",
+  "slug": "pay-for-chatgpt-from-russia",
+  "translation_key": "pay-international-services",
+  "description": "A practical overview of using a foreign virtual card for ChatGPT, Claude, Cursor, Midjourney and other international services.",
+  "category": "ai",
+  "datePublished": "2026-08-09",
+  "dateModified": "2026-08-09",
+  "status": "published",
+  "seo": {
+    "title": "How to Pay for ChatGPT from Russia in 2026 | Lambert/Digital",
+    "description": "How to pay for ChatGPT, Claude, Midjourney, Cursor and other international services from Russia using a foreign virtual card.",
+    "robots": "index, follow",
+    "ogImage": "/assets/images/A.png"
+  },
+  "cover": {
+    "className": "article-card__cover--zarub",
+    "alt": "Virtual foreign bank card illustration"
+  },
+  "lead": "<p>After Russian bank cards became restricted, paying for international services turned into a separate task. ChatGPT, Claude, Midjourney, Cursor, Adobe, Figma and many other products may require a foreign bank card.</p><p>One available option is the <strong>Zarub virtual foreign card</strong>, issued and managed through its official Telegram bot.</p>",
+  "blocks": [
+    {
+      "type": "h2",
+      "heading": "Why use a foreign virtual card",
+      "anchor": "why-foreign-card"
+    },
+    {
+      "type": "text",
+      "content": "<p>A dedicated virtual card can be used for recurring subscriptions and one-off purchases from international providers. Supported services and payment conditions can change, so check the provider’s current terms before paying.</p>"
+    },
+    {
+      "type": "h2",
+      "heading": "How to get and use a Zarub card",
+      "anchor": "how-to-get-zarub"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Open the official Zarub Telegram bot.",
+        "Select the appropriate card and review its fees.",
+        "Complete the required verification and fund the balance.",
+        "Enter the card details in the service you need to pay for."
+      ]
+    },
+    {
+      "type": "callout",
+      "heading": "Important",
+      "text": "This is a payment tool, not a guarantee that every merchant will accept a transaction. Review fees, limits and service terms in advance."
+    },
+    {
+      "type": "h2",
+      "heading": "What to check before paying",
+      "anchor": "before-paying"
+    },
+    {
+      "type": "text",
+      "content": "<p>Confirm the subscription price, billing currency, recurring-payment rules, card balance and any conversion or issue fees. Never share confirmation codes or card credentials with third parties.</p>"
+    }
+  ],
+  "language": "en"
+}

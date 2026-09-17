@@ -1,0 +1,71 @@
+{
+  "title": "Website Not Working or Not Opening: What to Do",
+  "slug": "website-not-working-what-to-do",
+  "translation_key": "website-down",
+  "description": "A practical diagnostic checklist for hosting, domain, DNS, SSL, server, CMS, update and malware problems.",
+  "category": "site-support",
+  "datePublished": "2026-08-11",
+  "dateModified": "2026-08-11",
+  "status": "published",
+  "seo": {
+    "title": "Website Not Working: Causes and Recovery Checklist | Lambert/Digital",
+    "description": "Why a website may stop opening: hosting, DNS, SSL, server, CMS, update errors and malware, with a practical recovery checklist.",
+    "robots": "index, follow",
+    "ogImage": "/assets/images/articles/404.png"
+  },
+  "cover": {
+    "alt": "404 error"
+  },
+  "lead": "<p>When a website suddenly stops opening, the visible symptom may be a blank page, a server error, endless loading or a connection failure. These symptoms can have very different causes.</p>",
+  "heroCta": {
+    "label": "Need urgent website support?",
+    "url": "/en/site-help/",
+    "linkType": "internal"
+  },
+  "blocks": [
+    {
+      "type": "h2",
+      "heading": "First checks",
+      "anchor": "first-checks"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Check the website from another device and network.",
+        "Record the exact error message and time.",
+        "Check domain, DNS and SSL certificate status.",
+        "Review hosting availability, disk space and recent changes.",
+        "Inspect server and CMS logs before changing anything."
+      ]
+    },
+    {
+      "type": "h2",
+      "heading": "Typical causes",
+      "anchor": "typical-causes"
+    },
+    {
+      "type": "text",
+      "content": "<p>Common causes include a hosting incident, expired domain or certificate, incorrect DNS records, exhausted server resources, database failure, a broken deployment or update, incompatible plugins, malicious code and accidental configuration changes.</p>"
+    },
+    {
+      "type": "h2",
+      "heading": "What not to do",
+      "anchor": "avoid"
+    },
+    {
+      "type": "text",
+      "content": "<p>Do not repeatedly reinstall components, delete files or restore an arbitrary old backup before preserving evidence and current data. Unstructured changes can make recovery harder.</p>"
+    },
+    {
+      "type": "h2",
+      "heading": "Recovery approach",
+      "anchor": "recovery"
+    },
+    {
+      "type": "text",
+      "content": "<p>Make a backup, isolate the failing layer, restore service with the smallest safe change, then investigate the root cause. After recovery, verify forms, integrations, analytics, scheduled tasks and security.</p>"
+    }
+  ],
+  "language": "en"
+}

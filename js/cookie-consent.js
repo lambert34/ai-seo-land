@@ -32,6 +32,7 @@
     try { localStorage.setItem(storageKey, value); } catch { /* Banner remains dismissed for this visit. */ }
   }
 
+  const english = document.documentElement.lang === 'en';
   const preference = readPreference();
   if (preference === 'all') startMetrika();
   if (preference === 'all' || preference === 'necessary') return;
@@ -45,12 +46,12 @@
     content.className = 'cookie-banner__content';
     const title = document.createElement('strong');
     title.id = 'cookie-banner-title';
-    title.textContent = 'Мы используем cookie';
+    title.textContent = english ? 'We use cookies' : 'Мы используем cookie';
     const text = document.createElement('p');
-    text.append('Сайт использует необходимые cookie для работы и Яндекс.Метрику для анализа посещаемости. Подробнее — в ');
+    text.append(english ? 'This website uses necessary cookies and Yandex Metrica for audience analytics. Read our ' : 'Сайт использует необходимые cookie для работы и Яндекс.Метрику для анализа посещаемости. Подробнее — в ');
     const link = document.createElement('a');
-    link.href = '/cookies/';
-    link.textContent = 'Политике cookie';
+    link.href = english ? '/en/cookies/' : '/cookies/';
+    link.textContent = english ? 'Cookie Policy' : 'Политике cookie';
     text.append(link, '.');
     content.append(title, text);
 
@@ -59,11 +60,11 @@
     const accept = document.createElement('button');
     accept.type = 'button';
     accept.className = 'button button--small';
-    accept.textContent = 'Принять';
+    accept.textContent = english ? 'Accept' : 'Принять';
     const necessary = document.createElement('button');
     necessary.type = 'button';
     necessary.className = 'button button--small button--secondary';
-    necessary.textContent = 'Только необходимые';
+    necessary.textContent = english ? 'Necessary only' : 'Только необходимые';
     actions.append(accept, necessary);
     banner.append(content, actions);
     document.body.append(banner);
