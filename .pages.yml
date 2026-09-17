@@ -17,6 +17,13 @@ content:
         sort: datePublished
         order: desc
     fields:
+      - name: language
+        label: Language
+        type: select
+        required: true
+        default: ru
+        options: { values: [ru, en] }
+      - { name: translation_key, label: Translation key, type: string, required: true, description: "Use the same stable key for RU and EN versions." }
       - { name: title, label: Заголовок, type: string, required: true }
       - name: slug
         label: Slug

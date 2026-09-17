@@ -58,13 +58,14 @@ test('production pages follow source publication and indexing rules', async () =
 
   assert.equal(
     (catalog.match(/article-card__clickable/g) || []).length,
-    expectedPublished.length
+    expectedPublished.filter(article => (article.language || 'ru') === 'ru').length
   );
 
   for (const article of expectedPublished) {
-    const articleUrl = `/articles/${article.slug}/`;
+    const language = article.language || 'ru';
+    const articleUrl = `${language === 'en' ? '/en' : ''}/articles/${article.slug}/`;
     const html = await fs.readFile(
-      path.join(root, `articles/${article.slug}/index.html`),
+      path.join(root, `${language === 'en' ? 'en/' : ''}articles/${article.slug}/index.html`),
       'utf8'
     );
 
@@ -75,7 +76,12 @@ test('production pages follow source publication and indexing rules', async () =
     for (const id of [...html.matchAll(/<a href="#([^"]+)"/g)].map(match => match[1])) {
       assert.match(html, new RegExp(`id="${id}"`));
     }
-    assert.match(catalog, new RegExp(`href="${articleUrl}"`));
+    const languageCatalog = await fs.readFile(path.join(root, language === 'en' ? 'en/articles/index.html' : 'articles/index.html'), 'utf8');
+    assert.match(languageCatalog, new RegExp(`href="${articleUrl}"`));
+    assert.match(html, new RegExp(`<html lang="${language}"`));
+    assert.match(html, /hreflang="ru"/);
+    assert.match(html, /hreflang="en"/);
+    assert.match(html, /hreflang="x-default"/);
 
     const hasFaq = article.blocks.some(block => (block.type || block._block) === 'faq');
     hasFaq ? assert.match(html, /FAQPage/) : assert.doesNotMatch(html, /FAQPage/);
@@ -89,8 +95,8 @@ test('production pages follow source publication and indexing rules', async () =
   }
 
   for (const article of expectedDrafts) {
-    await assert.rejects(fs.access(path.join(root, `articles/${article.slug}/index.html`)));
-    assert.doesNotMatch(catalog, new RegExp(`href="/articles/${article.slug}/"`));
+    await assert.rejects(fs.access(path.join(root, `${article.language === 'en' ? 'en/' : ''}articles/${article.slug}/index.html`)));
+    if ((article.language || 'ru') === 'ru') assert.doesNotMatch(catalog, new RegExp(`href="/articles/${article.slug}/"`));
     assert.doesNotMatch(map, new RegExp(`<loc>https://lambert-digital\\.ru/articles/${article.slug}/</loc>`));
   }
 

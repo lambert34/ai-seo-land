@@ -1,0 +1,84 @@
+{
+  "title": "Why a 1C-Bitrix Website Is Slow",
+  "slug": "why-bitrix-website-is-slow",
+  "translation_key": "bitrix-performance",
+  "description": "Server resources, PHP, caching, databases, components, integrations and frontend: a systematic guide to finding performance bottlenecks.",
+  "category": "bitrix",
+  "datePublished": "2026-08-09",
+  "dateModified": "2026-08-09",
+  "status": "published",
+  "seo": {
+    "title": "Why a 1C-Bitrix Website Is Slow and How to Speed It Up | Lambert/Digital",
+    "description": "A diagnostic guide to slow 1C-Bitrix websites: server, PHP, cache, SQL, components, integrations and frontend performance.",
+    "robots": "index, follow",
+    "ogImage": "/assets/images/A.png"
+  },
+  "cover": {
+    "className": "",
+    "alt": "1C-Bitrix website performance illustration"
+  },
+  "lead": "<p>A slow 1C-Bitrix website does not necessarily mean that the CMS itself is the problem. The bottleneck may be the server, PHP configuration, database, caching, a heavy component, frontend assets or an integration.</p><p>Start by identifying <strong>where the delay occurs</strong> rather than immediately upgrading hosting.</p>",
+  "blocks": [
+    {
+      "type": "h2",
+      "heading": "Common causes of poor performance",
+      "anchor": "causes"
+    },
+    {
+      "type": "text",
+      "content": "<p>Review the complete request chain: browser, network, web server, PHP, Bitrix Framework, cache, database and integrations. High server response time and slow visual rendering are different problems and require different diagnostics.</p>"
+    },
+    {
+      "type": "list",
+      "items": [
+        "Insufficient CPU, memory or disk performance",
+        "Unsupported or inefficient PHP configuration",
+        "Disabled or incorrectly configured caching",
+        "Heavy custom components and repeated SQL queries",
+        "Large catalogues and complex filters",
+        "Unoptimised images, scripts and third-party widgets",
+        "Resource-intensive imports and CRM or 1C integrations",
+        "Accumulated technical debt"
+      ]
+    },
+    {
+      "type": "h2",
+      "heading": "What to check first",
+      "anchor": "first-check"
+    },
+    {
+      "type": "text",
+      "content": "<p>Measure server response time, inspect resource usage during the slowdown, review the Bitrix performance monitor and browser network waterfall, and compare fast and slow sections. Make changes only after a reproducible bottleneck has been identified.</p>"
+    },
+    {
+      "type": "h2",
+      "heading": "A safe optimisation sequence",
+      "anchor": "optimisation-sequence"
+    },
+    {
+      "type": "list",
+      "ordered": true,
+      "items": [
+        "Create a backup and record baseline metrics.",
+        "Separate backend latency from frontend loading time.",
+        "Find expensive components, requests or scheduled jobs.",
+        "Fix the root cause and validate caching.",
+        "Repeat measurements under comparable conditions."
+      ]
+    },
+    {
+      "type": "faq",
+      "items": [
+        {
+          "question": "Will more expensive hosting always solve the problem?",
+          "answer": "No. Extra resources may hide inefficient code temporarily, but a measured diagnosis is required."
+        },
+        {
+          "question": "Should database indexes be added immediately?",
+          "answer": "No. Indexes should be based on actual slow queries and their execution plans."
+        }
+      ]
+    }
+  ],
+  "language": "en"
+}
