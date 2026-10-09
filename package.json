@@ -5,6 +5,7 @@
   "scripts": {
     "build": "npm run build:articles",
     "build:articles": "node scripts/build-articles.mjs",
+    "build:cloudflare": "npm run build:articles && node scripts/build-cloudflare.mjs",
     "test:articles": "node --test tests/articles.test.mjs",
     "test:i18n": "node --test tests/i18n.test.mjs",
     "audit:english": "node scripts/audit-english.mjs"
