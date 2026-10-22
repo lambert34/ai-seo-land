@@ -107,6 +107,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://lambert-digital.ru/articles/uyazvimosti-php-2026-bitrix/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://lambert-digital.ru/en/articles/website-not-working-what-to-do/</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

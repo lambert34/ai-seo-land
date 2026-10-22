@@ -73,6 +73,12 @@ test('production pages follow source publication and indexing rules', async () =
     assert.match(html, new RegExp(`rel="canonical" href="https://lambert-digital\\.ru${articleUrl}"`));
     assert.match(html, /BlogPosting/);
     assert.match(html, /BreadcrumbList/);
+    const graph = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1])['@graph'];
+    const breadcrumbs = graph.find(item => item['@type'] === 'BreadcrumbList').itemListElement;
+    assert.deepEqual(breadcrumbs.map(item => item.position), [1, 2, 3]);
+    assert.equal(breadcrumbs[2].name, article.title);
+    assert.equal(breadcrumbs[2].item, `https://lambert-digital.ru${articleUrl}`);
+
     for (const id of [...html.matchAll(/<a href="#([^"]+)"/g)].map(match => match[1])) {
       assert.match(html, new RegExp(`id="${id}"`));
     }

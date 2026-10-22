@@ -72,6 +72,7 @@ content:
         type: object
         fields:
           - { name: alt, label: Alt обложки, type: string }
+          - { name: image, label: Изображение обложки, type: image }
           - { name: className, label: CSS-класс существующей обложки, type: string, hidden: true }
       - { name: lead, label: Вступление, type: rich-text, required: true }
       - name: heroCta
