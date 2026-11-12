@@ -33,7 +33,9 @@
   }
 
   const english = document.documentElement.lang === 'en';
-  const preference = readPreference();
+  let preference = readPreference();
+  // Keep the in-memory choice too: consent still works if storage is unavailable.
+  window.lambertAnalyticsAllowed = () => preference === 'all';
   if (preference === 'all') startMetrika();
   if (preference === 'all' || preference === 'necessary') return;
 
@@ -70,6 +72,7 @@
     document.body.append(banner);
 
     const choose = value => {
+      preference = value;
       savePreference(value);
       banner.remove();
       if (value === 'all') startMetrika();

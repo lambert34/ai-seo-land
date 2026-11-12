@@ -2,6 +2,8 @@ const METRIKA_COUNTER_ID = 109997768;
 const LEAD_GOAL_ID = 'lead_click';
 
 function sendMetrikaGoal(goalId) {
+  if (window.lambertAnalyticsAllowed?.() !== true) return;
+
   if (typeof ym !== 'function') {
     console.warn('Метрика недоступна:', goalId);
     return;
@@ -47,6 +49,9 @@ function trackMetrikaClick(event) {
   const isZarubReferral = trackingType === 'zarub-referral';
   const isBitrixPage = document.body.classList.contains('bitrix-support-page');
   const isSiteHelpPage = document.body.classList.contains('site-help-page');
+  const isSeoPage = document.body.classList.contains('seo-page');
+  if (isSeoPage && trackingType === 'seo-consultation') goals.add('seo_click_consultation');
+  if (isSeoPage && target.matches('a') && isTelegramLink(target)) goals.add('seo_click_telegram');
 
   if (isBitrixPage && trackingType === 'bitrix-estimate') goals.add('bitrix_click_estimate');
   if (isBitrixPage && trackingType === 'bitrix-telegram') goals.add('bitrix_click_telegram');
@@ -77,11 +82,13 @@ function trackMetrikaClick(event) {
 
   const isLandingServiceLink = trackingType === 'view-landing-service';
   const isSiteHelpServiceLink = trackingType === 'view-site-help-service';
+  const isSeoServiceLink = trackingType === 'view-seo-service';
   if (isLandingServiceLink) goals.add('click_view_landing_service');
   if (isSiteHelpServiceLink) goals.add('click_view_site_help_service');
   if (
     !isLandingServiceLink
     && !isSiteHelpServiceLink
+    && !isSeoServiceLink
     && (trackingType === 'discuss-price' || target.closest('.pricing'))
   ) {
     goals.add('click_discuss_price');
@@ -104,6 +111,8 @@ function trackMetrikaClick(event) {
     || goals.has('site_help_click_telegram')
     || goals.has('site_help_click_whatsapp')
     || goals.has('site_help_click_phone')
+    || goals.has('seo_click_consultation')
+    || goals.has('seo_click_telegram')
   ) {
     goals.add(LEAD_GOAL_ID);
   }

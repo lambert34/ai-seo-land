@@ -1,0 +1,46 @@
+/* Page-specific layout; shared cards, buttons, pricing and navigation stay native. */
+.seo-page .section-heading{max-width:880px}
+.seo-page .section-heading h2{font-size:clamp(1.8rem,3.5vw,3rem)}
+.seo-page .section:nth-child(even){background:rgba(255,255,255,.015)}
+.seo-hero{padding-top:38px}
+.seo-hero h1{max-width:1000px}
+.seo-hero .seo-lead{max-width:850px;margin:26px 0 18px;font-size:clamp(1.2rem,2.2vw,1.65rem);color:var(--color-text)}
+.seo-hero p:not(.eyebrow){max-width:880px}
+.seo-breadcrumbs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:42px;color:var(--color-text-muted);font-size:.9rem}
+.seo-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:28px}
+.seo-actions .button{text-align:center;max-width:100%;white-space:normal}
+.seo-trust{display:flex;flex-wrap:wrap;gap:12px 30px;padding:28px 0 0;margin:28px 0 0;border-top:1px solid var(--color-border);list-style:none;color:var(--color-text-muted)}
+.seo-trust li{max-width:100%}
+.seo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-block:28px}
+.seo-grid--two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.seo-grid .card{display:flex;flex-direction:column;align-items:flex-start;gap:16px;min-width:0}
+.seo-page .container>p+p{margin-top:18px}
+.seo-note{font-size:.95rem}
+.seo-highlight{padding:24px;border-left:3px solid var(--color-accent);background:var(--color-accent-soft);color:var(--color-text);font-size:1.15rem}
+.seo-text-link,.seo-contact-note a{color:var(--color-accent-hover);text-decoration:underline;text-underline-offset:4px}
+.seo-text-link{margin-top:auto}
+.seo-process{padding:0;list-style:none;counter-reset:none}
+.seo-step{font:600 1.4rem/1.2 monospace;color:var(--color-accent-hover)}
+.seo-prices{grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:28px}
+.seo-prices .price-card{display:flex;flex-direction:column;align-items:flex-start;gap:18px;min-width:0}
+.seo-prices .price-card h3{min-height:0}
+.seo-prices .price-card strong{font-size:clamp(1.8rem,3vw,2.4rem);margin:8px 0 0}
+.seo-prices .seo-period{margin-top:-14px}
+.seo-prices .button{margin-top:auto;text-align:center}
+.seo-faq{display:grid;gap:12px}
+.seo-faq details{padding:22px;border:1px solid var(--color-border);border-radius:18px;background:var(--color-surface)}
+.seo-faq summary{cursor:pointer;font-weight:600;line-height:1.5}
+.seo-faq details[open] p{margin-top:18px}
+.seo-page address{font-style:normal;align-content:start;margin:0}
+.seo-page .contacts__panel{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}
+.seo-page .contacts__panel>div>p+p{margin-top:18px}
+.seo-page .contacts__list{grid-template-columns:1fr;min-width:0}
+.seo-page .contacts__list a{overflow-wrap:anywhere}
+.seo-contact-note{grid-column:1/-1;font-size:.9rem}
+.seo-page :is(a,button,summary):focus-visible{outline:2px solid var(--color-accent-hover);outline-offset:4px}
+.seo-skip{position:fixed;top:8px;left:16px;z-index:1100;padding:12px 18px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:12px;transform:translateY(-200%)}
+.seo-skip:focus{transform:none}
+@media(max-width:1100px){.seo-page .site-nav{gap:0}.seo-page .site-nav>a{padding-inline:8px}.seo-page .header__inner{gap:12px}}
+@media(max-width:900px){.seo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.seo-page .contacts__panel{grid-template-columns:1fr}.seo-page .site-nav>a{padding:10px 16px}.seo-page .site-nav .nav-dropdown__menu a{padding-block:8px}}
+@media(max-width:560px){.seo-grid,.seo-prices{grid-template-columns:1fr}.seo-hero{padding-top:24px}.seo-breadcrumbs{margin-bottom:28px}.seo-actions{flex-direction:column}.seo-page .section-heading h2{font-size:1.8rem}.seo-trust{display:grid;gap:14px}.seo-faq details{padding:18px}.seo-page .button{font-size:.95rem}.seo-page .contacts__panel{padding:22px}}
+@media(prefers-reduced-motion:reduce){.seo-page{scroll-behavior:auto}.seo-page *{animation:none!important;transition:none!important}}

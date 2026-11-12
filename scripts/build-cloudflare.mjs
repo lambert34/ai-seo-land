@@ -18,7 +18,8 @@ const PUBLIC_DIRECTORIES = [
   'landing',
   'personal-data-consent',
   'privacy',
-  'site-help'
+  'site-help',
+  'seo-prodvizhenie'
 ];
 
 const PUBLIC_FILES = [
@@ -32,6 +33,7 @@ const PUBLIC_FILES = [
 const REQUIRED_OUTPUTS = [
   'index.html',
   'en/index.html',
+  'seo-prodvizhenie/index.html',
   'assets/images/new-logo.png',
   'assets/images/A.png',
   'css/main.css',
